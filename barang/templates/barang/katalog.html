@@ -10,34 +10,142 @@
       <p class="eyebrow eyebrow--mono">Berbagi lebih dekat, hidup lebih hemat</p>
       <h1 class="hero__title" id="hero-judul">Barang bekas kos, <span>manfaat baru.</span></h1>
       <p class="hero__text">Temukan barang layak pakai dari tetangga kampusmu. Hemat biaya, kurangi sampah.</p>
+      <form class="search" method="get" action="{% url 'barang:katalog' %}" role="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <label for="cari" class="visually-hidden">Cari barang</label>
+        <input id="cari" type="search" name="q" value="{{ q }}" placeholder="Cari barang...">
+        {% for k in kategori_dipilih %}<input type="hidden" name="kategori" value="{{ k }}">{% endfor %}
+        {% for k in kondisi_dipilih %}<input type="hidden" name="kondisi" value="{{ k }}">{% endfor %}
+        {% if tipe %}<input type="hidden" name="tipe" value="{{ tipe }}">{% endif %}
+        <input type="hidden" name="urut" value="{{ urut }}">
+        <button type="submit" class="btn btn--primary">Cari</button>
+      </form>
     </div>
     <div class="hero__art">
       <img src="{% static 'img/hero-ilustrasi.png' %}" alt="" width="420" height="300">
     </div>
   </section>
 
-  <section class="katalog__list" aria-label="Daftar barang">
-    <div class="toolbar">
-      <p class="toolbar__count">{{ total }} barang ditemukan</p>
-    </div>
-
-    {% if barang_list %}
-    <div class="grid-barang">
-      {% for barang in barang_list %}
-        {% include "barang/partials/card.html" %}
-      {% endfor %}
-    </div>
-    {% else %}
-    <div class="empty">
-      {% include "barang/partials/empty_heart.svg.html" %}
-      <div>
-        <h2 class="empty__title">Katalog masih kosong</h2>
-        <p class="empty__text">Jadi yang pertama membagikan barang layak pakai ke tetangga kampus.</p>
-        {% url 'barang:tambah' as url_tambah %}
-        {% if url_tambah %}<a href="{{ url_tambah }}" class="btn btn--primary">Tambah Barang</a>{% endif %}
+  <div class="katalog__body">
+    <form class="filter" method="get" action="{% url 'barang:katalog' %}" aria-label="Filter barang">
+      {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+      <input type="hidden" name="urut" value="{{ urut }}">
+      <div class="filter__head">
+        <h2 class="filter__title">Filter</h2>
+        <a href="{% url 'barang:katalog' %}" class="link-green">Atur ulang</a>
       </div>
-    </div>
-    {% endif %}
-  </section>
+
+      <fieldset class="filter__group">
+        <legend class="filter__label">Kategori</legend>
+        <label class="check">
+          <input type="checkbox" data-check-semua {% if not kategori_dipilih %}checked{% endif %}>
+          Semua
+        </label>
+        {% for value, label in kategori_choices %}
+        <label class="check">
+          <input type="checkbox" name="kategori" value="{{ value }}" data-check-kategori {% if value in kategori_dipilih %}checked{% endif %}>
+          {{ label }}
+        </label>
+        {% endfor %}
+      </fieldset>
+
+      <fieldset class="filter__group">
+        <legend class="filter__label">Tipe transaksi</legend>
+        <div class="segmented">
+          <label><input type="radio" name="tipe" value="" {% if not tipe %}checked{% endif %}><span>Semua</span></label>
+          {% for value, label in tipe_choices %}
+          <label><input type="radio" name="tipe" value="{{ value }}" {% if tipe == value %}checked{% endif %}><span>{{ label }}</span></label>
+          {% endfor %}
+        </div>
+      </fieldset>
+
+      <fieldset class="filter__group">
+        <legend class="filter__label">Kondisi</legend>
+        {% for value, label in kondisi_choices %}
+        <label class="check">
+          <input type="checkbox" name="kondisi" value="{{ value }}" {% if value in kondisi_dipilih %}checked{% endif %}>
+          {{ label }}
+        </label>
+        {% endfor %}
+      </fieldset>
+
+      <button type="submit" class="btn btn--primary btn--block filter__submit">Terapkan Filter</button>
+    </form>
+
+    <section aria-label="Daftar barang">
+      <nav class="chips" aria-label="Kategori cepat">
+        <a href="{% query_ganti kategori=None page=None %}" class="chip {% if not kategori_dipilih %}is-active{% endif %}">Semua</a>
+        {% for value, label in kategori_choices %}
+          {% if value in kategori_chip %}
+          <a href="{% query_ganti kategori=value page=None %}" class="chip {% if kategori_dipilih|length == 1 and value in kategori_dipilih %}is-active{% endif %}">{{ label }}</a>
+          {% endif %}
+        {% endfor %}
+      </nav>
+
+      <div class="toolbar">
+        <p class="toolbar__count">{{ total }} barang ditemukan</p>
+        <form method="get" action="{% url 'barang:katalog' %}" class="sort">
+          {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+          {% for k in kategori_dipilih %}<input type="hidden" name="kategori" value="{{ k }}">{% endfor %}
+          {% for k in kondisi_dipilih %}<input type="hidden" name="kondisi" value="{{ k }}">{% endfor %}
+          {% if tipe %}<input type="hidden" name="tipe" value="{{ tipe }}">{% endif %}
+          <label for="urut" class="sort__prefix">Urutkan:</label>
+          <select id="urut" name="urut" class="has-prefix" data-auto-submit>
+            {% for value, label in pilihan_urut %}
+            <option value="{{ value }}" {% if value == urut %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          <noscript><button type="submit" class="btn btn--sm btn--outline">Urutkan</button></noscript>
+        </form>
+      </div>
+
+      {% if barang_list %}
+      <div class="grid-barang">
+        {% for barang in barang_list %}
+          {% include "barang/partials/card.html" %}
+        {% endfor %}
+      </div>
+
+      {% if halaman.has_other_pages %}
+      <nav class="pagination" aria-label="Halaman katalog">
+        {% if halaman.has_previous %}
+        <a href="{% query_ganti page=halaman.previous_page_number %}" aria-label="Halaman sebelumnya">&lsaquo;</a>
+        {% else %}
+        <span class="is-disabled" aria-hidden="true">&lsaquo;</span>
+        {% endif %}
+        {% for nomor in halaman.paginator.page_range %}
+          {% if nomor == halaman.number %}
+          <span class="is-current" aria-current="page">{{ nomor }}</span>
+          {% else %}
+          <a href="{% query_ganti page=nomor %}">{{ nomor }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if halaman.has_next %}
+        <a href="{% query_ganti page=halaman.next_page_number %}" aria-label="Halaman berikutnya">&rsaquo;</a>
+        {% else %}
+        <span class="is-disabled" aria-hidden="true">&rsaquo;</span>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="empty">
+        {% include "barang/partials/empty_heart.svg.html" %}
+        <div>
+          {% if ada_filter %}
+          <h2 class="empty__title">Barang tidak ditemukan</h2>
+          <p class="empty__text">Coba kata kunci lain atau atur ulang filter supaya pilihannya lebih banyak.</p>
+          <a href="{% url 'barang:katalog' %}" class="btn btn--primary">Atur Ulang Filter</a>
+          {% else %}
+          <h2 class="empty__title">Katalog masih kosong</h2>
+          <p class="empty__text">Jadi yang pertama membagikan barang layak pakai ke tetangga kampus.</p>
+          <a href="{% url 'barang:tambah' %}" class="btn btn--primary">Tambah Barang</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </section>
+  </div>
 </div>
 {% endblock %}
