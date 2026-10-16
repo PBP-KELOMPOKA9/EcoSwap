@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static barang_extras %}
+
+{% block title %}Katalog Barang{% endblock %}
+
+{% block content %}
+<div class="container katalog">
+  <section class="hero" aria-labelledby="hero-judul">
+    <div>
+      <p class="eyebrow eyebrow--mono">Berbagi lebih dekat, hidup lebih hemat</p>
+      <h1 class="hero__title" id="hero-judul">Barang bekas kos, <span>manfaat baru.</span></h1>
+      <p class="hero__text">Temukan barang layak pakai dari tetangga kampusmu. Hemat biaya, kurangi sampah.</p>
+    </div>
+    <div class="hero__art">
+      <img src="{% static 'img/hero-ilustrasi.png' %}" alt="" width="420" height="300">
+    </div>
+  </section>
+
+  <section class="katalog__list" aria-label="Daftar barang">
+    <div class="toolbar">
+      <p class="toolbar__count">{{ total }} barang ditemukan</p>
+    </div>
+
+    {% if barang_list %}
+    <div class="grid-barang">
+      {% for barang in barang_list %}
+        {% include "barang/partials/card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+      {% include "barang/partials/empty_heart.svg.html" %}
+      <div>
+        <h2 class="empty__title">Katalog masih kosong</h2>
+        <p class="empty__text">Jadi yang pertama membagikan barang layak pakai ke tetangga kampus.</p>
+        {% url 'barang:tambah' as url_tambah %}
+        {% if url_tambah %}<a href="{{ url_tambah }}" class="btn btn--primary">Tambah Barang</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

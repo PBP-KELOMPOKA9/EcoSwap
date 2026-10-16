@@ -1,0 +1,72 @@
+{% load static barang_extras %}
+{% comment %}
+  {% url ... as nama %} tidak error kalau URL-nya belum ada,
+  jadi link di navbar otomatis muncul begitu fiturnya sudah dibuat.
+{% endcomment %}
+{% url 'barang:katalog' as url_katalog %}
+{% url 'barang:barang_saya' as url_barang_saya %}
+{% url 'barang:tambah' as url_tambah %}
+{% url 'barang:wishlist' as url_wishlist %}
+<header class="navbar" data-navbar>
+  <div class="container navbar__inner">
+    <a href="{{ url_katalog|default:'/' }}" class="navbar__brand" aria-label="EcoSwap, ke katalog">
+      <img src="{% static 'img/logo-ecoswap.png' %}" alt="EcoSwap" width="122" height="52">
+    </a>
+
+    <nav class="navbar__menu" aria-label="Menu utama">
+      {% if url_katalog %}
+      <a href="{{ url_katalog }}" class="navbar__link {% if nav_aktif == 'katalog' %}is-active{% endif %}" {% if nav_aktif == 'katalog' %}aria-current="page"{% endif %}>Katalog</a>
+      {% endif %}
+      {% if user.is_authenticated and url_barang_saya %}
+      <a href="{{ url_barang_saya }}" class="navbar__link {% if nav_aktif == 'barang_saya' %}is-active{% endif %}" {% if nav_aktif == 'barang_saya' %}aria-current="page"{% endif %}>Barang Saya</a>
+      {% endif %}
+    </nav>
+
+    <div class="navbar__actions">
+      {% if user.is_authenticated %}
+      {% if url_wishlist %}
+      <a href="{{ url_wishlist }}" class="icon-btn {% if nav_aktif == 'wishlist' %}is-active{% endif %}" aria-label="Wishlist ({{ jumlah_wishlist }} barang)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.6-4.6-9.6-9.4C1.1 7.9 3.3 4.5 6.8 4.5c2 0 3.6 1.1 5.2 3 1.6-1.9 3.2-3 5.2-3 3.5 0 5.7 3.4 4.4 6.6-2 4.8-9.6 9.4-9.6 9.4z"/></svg>
+        <span class="icon-btn__badge" data-wishlist-count {% if not jumlah_wishlist %}hidden{% endif %}>{{ jumlah_wishlist }}</span>
+      </a>
+      {% endif %}
+      {% if url_tambah %}
+      <a href="{{ url_tambah }}" class="btn btn--primary navbar__add" aria-label="Tambah barang">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="navbar__add-text">Tambah Barang</span>
+      </a>
+      {% endif %}
+      <span class="navbar__divider" aria-hidden="true"></span>
+
+      <div class="profile" data-profile>
+        <button type="button" class="profile__toggle" data-profile-toggle aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>
+          <span class="profile__name">{{ user|nama_tampil }}</span>
+          <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="profile__menu">
+          <a href="{{ url_barang_saya|default:'#' }}" class="profile__item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>
+            Dashboard
+          </a>
+          {# TODO (Modul 2 · Profil): ganti action ke URL logout milik modul Profil. #}
+          <form method="post" action="{% url 'admin:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="profile__item profile__item--danger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H3"/></svg>
+              Sign Out
+            </button>
+          </form>
+        </div>
+      </div>
+      {% else %}
+      {# TODO (Modul 2 · Profil): ganti href ke URL login milik modul Profil. #}
+      <a href="{% url 'admin:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn--primary">Login</a>
+      {% endif %}
+
+      <button type="button" class="icon-btn navbar__burger" data-burger aria-expanded="false" aria-label="Buka menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
