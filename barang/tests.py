@@ -77,6 +77,33 @@ class KatalogDasarTest(TestCase):
         res = self.client.get(reverse('barang:katalog'))
         self.assertContains(res, 'Katalog masih kosong')
 
+    def test_filter_kategori_tipe_dan_cari(self):
+        pemilik = get_user_model().objects.get(username='pemilik')
+        Barang.objects.create(pemilik=pemilik, judul='Novel Bekas', deskripsi='-',
+                              kategori='buku', kondisi='baru', tipe='jual', harga=20000)
+        res = self.client.get(reverse('barang:katalog'), {'kategori': 'buku'})
+        self.assertContains(res, 'Novel Bekas')
+        self.assertNotContains(res, 'Lampu Belajar')
+        res = self.client.get(reverse('barang:katalog'), {'tipe': 'donasi'})
+        self.assertContains(res, 'Lampu Belajar')
+        self.assertNotContains(res, 'Novel Bekas')
+        res = self.client.get(reverse('barang:katalog'), {'q': 'lampu'})
+        self.assertContains(res, '1 barang ditemukan')
+        res = self.client.get(reverse('barang:katalog'), {'q': 'tidak-ada'})
+        self.assertContains(res, 'Barang tidak ditemukan')
+
+    def test_urut_termurah_dan_pagination(self):
+        pemilik = get_user_model().objects.get(username='pemilik')
+        for i in range(14):
+            Barang.objects.create(pemilik=pemilik, judul=f'Buku {i:02d}', deskripsi='-',
+                                  kategori='buku', kondisi='baru', tipe='jual', harga=1000 + i)
+        res = self.client.get(reverse('barang:katalog'), {'urut': 'termurah'})
+        judul = [b.judul for b in res.context['barang_list']]
+        self.assertEqual(judul[0], 'Lampu Belajar')
+        self.assertEqual(len(judul), 12)
+        res = self.client.get(reverse('barang:katalog'), {'urut': 'termurah', 'page': 2})
+        self.assertEqual(len(res.context['barang_list']), 3)
+
 
 @override_settings(MEDIA_ROOT=MEDIA_TEST)
 class BarangCrudTest(TestCase):
