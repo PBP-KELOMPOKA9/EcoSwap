@@ -76,3 +76,116 @@ class KatalogDasarTest(TestCase):
         Barang.objects.all().delete()
         res = self.client.get(reverse('barang:katalog'))
         self.assertContains(res, 'Katalog masih kosong')
+
+
+@override_settings(MEDIA_ROOT=MEDIA_TEST)
+class BarangCrudTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.pemilik = User.objects.create_user('pemilik', password='rahasia123')
+        self.pencari = User.objects.create_user('pencari', password='rahasia123')
+        self.barang = Barang.objects.create(
+            pemilik=self.pemilik, judul='Rak Buku Kayu', deskripsi='Masih kokoh.',
+            kategori='furnitur', kondisi='bekas_baik', tipe='jual', harga=75000,
+        )
+        FotoBarang.objects.create(barang=self.barang, gambar=gambar_dummy())
+
+    def data_form(self, **ubah):
+        data = {
+            'judul': 'Kipas Angin', 'kategori': 'elektronik', 'kondisi': 'bekas_baik',
+            'tipe': 'jual', 'harga': '60.000', 'deskripsi': 'Masih dingin.',
+        }
+        data.update(ubah)
+        return data
+
+    # ---------- Tambah ----------
+    def test_tambah_wajib_login(self):
+        res = self.client.get(reverse('barang:tambah'))
+        self.assertEqual(res.status_code, 302)
+
+    def test_tambah_barang_dengan_foto(self):
+        self.client.login(username='pencari', password='rahasia123')
+        data = self.data_form()
+        data['foto'] = [gambar_dummy('a.png'), gambar_dummy('b.png')]
+        res = self.client.post(reverse('barang:tambah'), data)
+        baru = Barang.objects.get(judul='Kipas Angin')
+        self.assertRedirects(res, baru.get_absolute_url())
+        self.assertEqual(baru.pemilik, self.pencari)
+        self.assertEqual(baru.harga, 60000)
+        self.assertEqual(baru.foto.count(), 2)
+
+    def test_tambah_validasi(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.post(reverse('barang:tambah'), self.data_form(judul='', harga=''))
+        self.assertContains(res, 'Judul wajib diisi.')
+        self.assertContains(res, 'Harga wajib diisi untuk barang yang dijual.')
+        self.assertContains(res, 'Unggah minimal 1 foto barang.')
+
+    def test_donasi_harga_jadi_nol(self):
+        self.client.login(username='pencari', password='rahasia123')
+        data = self.data_form(tipe='donasi', harga='50.000')
+        data['foto'] = gambar_dummy()
+        self.client.post(reverse('barang:tambah'), data)
+        self.assertEqual(Barang.objects.get(judul='Kipas Angin').harga, 0)
+
+    # ---------- Edit, status, hapus ----------
+    def test_edit_hanya_pemilik(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(reverse('barang:edit', args=[self.barang.pk]))
+        self.assertEqual(res.status_code, 404)
+
+    def test_edit_dan_hapus_foto(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        foto_lama = self.barang.foto.first()
+        data = self.data_form(judul='Rak Buku Jati')
+        data['hapus_foto'] = [foto_lama.pk]
+        data['foto'] = gambar_dummy('baru.png')
+        self.client.post(reverse('barang:edit', args=[self.barang.pk]), data)
+        self.barang.refresh_from_db()
+        self.assertEqual(self.barang.judul, 'Rak Buku Jati')
+        self.assertEqual(self.barang.foto.count(), 1)
+        self.assertNotEqual(self.barang.foto.first().pk, foto_lama.pk)
+
+    def test_edit_tidak_boleh_hapus_semua_foto(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        data = self.data_form()
+        data['hapus_foto'] = [self.barang.foto.first().pk]
+        res = self.client.post(reverse('barang:edit', args=[self.barang.pk]), data)
+        self.assertContains(res, 'Unggah minimal 1 foto barang.')
+
+    def test_ubah_status(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        self.client.post(reverse('barang:ubah_status', args=[self.barang.pk]), {'status': 'dipesan'})
+        self.barang.refresh_from_db()
+        self.assertEqual(self.barang.status, 'dipesan')
+
+    def test_hapus_barang(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        res = self.client.post(reverse('barang:hapus', args=[self.barang.pk]))
+        self.assertRedirects(res, reverse('barang:barang_saya'))
+        self.assertFalse(Barang.objects.filter(pk=self.barang.pk).exists())
+
+    def test_hapus_butuh_post(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        res = self.client.get(reverse('barang:hapus', args=[self.barang.pk]))
+        self.assertEqual(res.status_code, 405)
+
+    # ---------- Detail ----------
+    def test_detail_versi_pemilik_dan_pencari(self):
+        self.client.login(username='pemilik', password='rahasia123')
+        self.assertContains(self.client.get(self.barang.get_absolute_url()), 'Edit Barang')
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(self.barang.get_absolute_url())
+        self.assertContains(res, 'Ajukan Minat')
+        self.assertNotContains(res, 'Edit Barang')
+
+    def test_detail_menambah_jumlah_dilihat(self):
+        self.client.get(self.barang.get_absolute_url())
+        self.barang.refresh_from_db()
+        self.assertEqual(self.barang.jumlah_dilihat, 1)
+
+    # ---------- Barang Saya ----------
+    def test_barang_saya_hanya_milik_sendiri(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(reverse('barang:barang_saya'))
+        self.assertNotContains(res, 'Rak Buku Kayu')
