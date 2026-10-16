@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from PIL import Image
 
-from .models import Barang, FotoBarang
+from .models import Barang, FotoBarang, Wishlist
 
 MEDIA_TEST = tempfile.mkdtemp()
 
@@ -216,3 +216,52 @@ class BarangCrudTest(TestCase):
         self.client.login(username='pencari', password='rahasia123')
         res = self.client.get(reverse('barang:barang_saya'))
         self.assertNotContains(res, 'Rak Buku Kayu')
+
+
+class WishlistTest(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        pemilik = User.objects.create_user('pemilik', password='rahasia123')
+        self.pencari = User.objects.create_user('pencari', password='rahasia123')
+        self.barang = Barang.objects.create(
+            pemilik=pemilik, judul='Rak Buku Kayu', deskripsi='-',
+            kategori='furnitur', kondisi='bekas_baik', tipe='jual', harga=75000,
+        )
+        self.url = reverse('barang:toggle_wishlist', args=[self.barang.pk])
+
+    def test_toggle_wishlist_ajax(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.post(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(res.json(), {'tersimpan': True, 'jumlah': 1})
+        res = self.client.post(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(res.json(), {'tersimpan': False, 'jumlah': 0})
+
+    def test_toggle_tanpa_javascript(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.post(self.url, {'next': '/'})
+        self.assertRedirects(res, '/')
+        self.assertTrue(Wishlist.objects.filter(user=self.pencari, barang=self.barang).exists())
+
+    def test_tamu_diarahkan_login(self):
+        res = self.client.post(self.url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(res.status_code, 401)
+
+    def test_halaman_wishlist(self):
+        Wishlist.objects.create(user=self.pencari, barang=self.barang)
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(reverse('barang:wishlist'))
+        self.assertContains(res, 'Rak Buku Kayu')
+        self.assertContains(res, '1 barang tersimpan')
+
+    def test_barang_tidak_tersedia_ditandai(self):
+        self.barang.status = 'selesai'
+        self.barang.save()
+        Wishlist.objects.create(user=self.pencari, barang=self.barang)
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(reverse('barang:wishlist'))
+        self.assertContains(res, 'Sudah tidak tersedia')
+
+    def test_wishlist_kosong(self):
+        self.client.login(username='pencari', password='rahasia123')
+        res = self.client.get(reverse('barang:wishlist'))
+        self.assertContains(res, 'Belum ada barang favorit')

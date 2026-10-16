@@ -2,12 +2,14 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Count, F, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from .forms import BarangForm, StatusForm
-from .models import Barang
+from .models import Barang, Wishlist
 
 PER_HALAMAN = 12
 PILIHAN_URUT = {
@@ -15,6 +17,12 @@ PILIHAN_URUT = {
     'termurah': ('Termurah', ['harga', '-created_at']),
     'termahal': ('Termahal', ['-harga', '-created_at']),
 }
+
+
+def _wishlist_ids(user):
+    if not user.is_authenticated:
+        return set()
+    return set(Wishlist.objects.filter(user=user).values_list('barang_id', flat=True))
 
 
 def _redirect_aman(request, fallback):
@@ -69,6 +77,7 @@ def katalog(request):
         'pilihan_urut': [(k, v[0]) for k, v in PILIHAN_URUT.items()],
         'urut_label': PILIHAN_URUT[urut][0],
         'ada_filter': bool(q or kategori_dipilih or kondisi_dipilih or tipe),
+        'wishlist_ids': _wishlist_ids(request.user),
         'nav_aktif': 'katalog',
     }
     return render(request, 'barang/katalog.html', context)
@@ -95,6 +104,7 @@ def detail(request, pk):
         'fotos': list(barang.foto.all()),
         'is_pemilik': is_pemilik,
         'serupa': serupa,
+        'wishlist_ids': _wishlist_ids(request.user),
         'status_choices': Barang.Status.choices,
         'nav_aktif': 'barang_saya' if is_pemilik else 'katalog',
     }
@@ -194,3 +204,43 @@ def barang_saya(request):
         'total_semua': hitung['semua'],
         'nav_aktif': 'barang_saya',
     })
+
+
+@login_required
+def wishlist(request):
+    items = (
+        Wishlist.objects.filter(user=request.user)
+        .select_related('barang', 'barang__pemilik')
+        .prefetch_related('barang__foto')
+    )
+    barang_list = [w.barang for w in items]
+    return render(request, 'barang/wishlist.html', {
+        'barang_list': barang_list,
+        'wishlist_ids': {b.pk for b in barang_list},
+        'nav_aktif': 'wishlist',
+    })
+
+
+@require_POST
+def toggle_wishlist(request, pk):
+    is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    if not request.user.is_authenticated:
+        login_url = f"{reverse('admin:login')}?next={request.POST.get('next', '/')}"
+        if is_ajax:
+            return JsonResponse({'login_url': login_url}, status=401)
+        return redirect(login_url)
+
+    barang = get_object_or_404(Barang, pk=pk)
+    item, dibuat = Wishlist.objects.get_or_create(user=request.user, barang=barang)
+    if not dibuat:
+        item.delete()
+    tersimpan = dibuat
+    jumlah = Wishlist.objects.filter(user=request.user).count()
+
+    if is_ajax:
+        return JsonResponse({'tersimpan': tersimpan, 'jumlah': jumlah})
+    if tersimpan:
+        messages.success(request, f'"{barang.judul}" disimpan ke wishlist.')
+    else:
+        messages.success(request, f'"{barang.judul}" dihapus dari wishlist.')
+    return _redirect_aman(request, 'barang:katalog')
