@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import mimetypes
+
+mimetypes.add_type('text/css', '.css', True)
+mimetypes.add_type('application/javascript', '.js', True)
 
 load_dotenv()
 
