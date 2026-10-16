@@ -87,6 +87,22 @@ class FotoBarang(models.Model):
         return f'Foto {self.urutan + 1} - {self.barang.judul}'
 
 
+class Wishlist(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist'
+    )
+    barang = models.ForeignKey(Barang, on_delete=models.CASCADE, related_name='wishlist_set')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'barang'], name='unik_wishlist_per_user'),
+        ]
+
+    def __str__(self):
+        return f'{self.user} - {self.barang}'
+
 
 @receiver(post_delete, sender=FotoBarang)
 def hapus_file_foto(sender, instance, **kwargs):
