@@ -12,4 +12,6 @@ urlpatterns = [
     path('barang/<int:pk>/hapus/', views.hapus, name='hapus'),
     path('barang/<int:pk>/status/', views.ubah_status, name='ubah_status'),
     path('barang-saya/', views.barang_saya, name='barang_saya'),
+    path('wishlist/', views.wishlist, name='wishlist'),
+    path('wishlist/<int:pk>/toggle/', views.toggle_wishlist, name='toggle_wishlist'),
 ]

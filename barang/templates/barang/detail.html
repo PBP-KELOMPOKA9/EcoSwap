@@ -36,6 +36,9 @@
 
     <div class="info">
       <span class="badge badge--{{ barang.tipe }}">{{ barang.get_tipe_display }}</span>
+      {% if not is_pemilik %}
+      <div class="info__fav">{% include "barang/partials/heart.html" %}</div>
+      {% endif %}
       <h1 class="info__title">{{ barang.judul }}</h1>
       <p class="info__price">{{ barang|harga_label }}</p>
 

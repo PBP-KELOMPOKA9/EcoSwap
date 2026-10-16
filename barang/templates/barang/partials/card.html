@@ -1,5 +1,5 @@
 {% load barang_extras %}
-{% comment %}Kartu barang. Butuh variabel: barang.{% endcomment %}
+{% comment %}Kartu barang. Butuh variabel: barang, wishlist_ids. Opsional: wishlist_mode.{% endcomment %}
 {% url 'barang:detail' barang.pk as url_detail %}
 <article class="card {% if not barang.is_tersedia %}is-gone{% endif %}" {% if wishlist_mode %}data-wishlist-card{% endif %}>
   <a href="{{ url_detail|default:"#" }}" class="card__media" tabindex="-1" aria-hidden="true">
@@ -13,6 +13,7 @@
     <span class="badge badge--{{ barang.tipe }} card__badge">{{ barang.get_tipe_display }}</span>
     {% if not barang.is_tersedia %}<span class="card__gone">Sudah tidak tersedia</span>{% endif %}
   </a>
+  {% include "barang/partials/heart.html" %}
   <div class="card__body">
     <a href="{{ url_detail|default:"#" }}" class="card__title">{{ barang.judul }}</a>
     <p class="card__cat">{{ barang.get_kategori_display }}</p>

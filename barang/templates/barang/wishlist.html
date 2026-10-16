@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Wishlist Saya{% endblock %}
+
+{% block content %}
+<div class="container list-page">
+  <div class="list-head">
+    <div>
+      <p class="eyebrow">Koleksi pilihanmu</p>
+      <h1 class="page-title">Wishlist Saya</h1>
+      <p class="page-sub" data-wishlist-total>{% if barang_list %}{{ barang_list|length }} barang tersimpan{% else %}Belum ada barang tersimpan{% endif %}</p>
+    </div>
+  </div>
+
+  {% if barang_list %}
+  <div class="grid-barang grid-barang--spaced" data-wishlist-grid>
+    {% for barang in barang_list %}
+      {% include "barang/partials/card.html" with wishlist_mode=True %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="empty empty--spaced" data-wishlist-empty {% if barang_list %}hidden{% endif %}>
+    {% include "barang/partials/empty_heart.svg.html" %}
+    <div>
+      <h2 class="empty__title">Belum ada barang favorit</h2>
+      <p class="empty__text">Simpan barang yang kamu suka biar gampang dipantau. Tekan ikon hati di kartu barang.</p>
+      <a href="{% url 'barang:katalog' %}" class="btn btn--primary">Jelajahi Katalog</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
