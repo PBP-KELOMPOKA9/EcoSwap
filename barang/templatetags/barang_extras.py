@@ -36,3 +36,20 @@ def nama_tampil(user):
             return f'{bagian[0]} {bagian[1][0]}.'
         return bagian[0]
     return user.username
+
+
+@register.simple_tag(takes_context=True)
+def query_ganti(context, **kwargs):
+    """Bikin query string baru dengan mengganti/menambah parameter tertentu.
+
+    Contoh: {% query_ganti page=2 %} -> '?q=rak&kategori=buku&page=2'
+    Isi nilai dengan None untuk menghapus parameter.
+    """
+    params = context['request'].GET.copy()
+    for key, value in kwargs.items():
+        if value is None or value == '':
+            params.pop(key, None)
+        else:
+            params[key] = value
+    query = params.urlencode()
+    return f'?{query}' if query else '?'
