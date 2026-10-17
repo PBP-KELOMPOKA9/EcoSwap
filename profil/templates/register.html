@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - EcoSwap</title>
+    <!-- load tailwind css via cdn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex h-screen w-full font-sans bg-gray-50 overflow-hidden">
+
+    <!-- area kiri: form registrasi dengan latar putih -->
+    <div class="w-full lg:w-1/2 bg-white flex flex-col justify-between p-10 lg:p-14 h-full overflow-y-auto">
+        
+        <!-- logo ecoswap di pojok kiri atas -->
+        <div>
+            <img src="{% static 'logoEco.png' %}" alt="Logo EcoSwap" class="h-14 lg:h-16 object-contain">
+        </div>
+
+        <!-- form registrasi atur lebar dan teks -->
+        <div class="w-full max-w-[500px] mx-auto my-auto py-2">
+            
+            <!-- judul sign up warna hijau dan ajakan login -->
+            <div class="mb-7">
+                <h1 class="text-4xl lg:text-5xl font-black text-[#357A4B] tracking-tight">Sign up</h1>
+                <p class="text-gray-500 mt-2.5 text-base lg:text-lg">
+                    Already have an account? 
+                    <a href="/login/" class="text-green-700 font-bold underline hover:text-green-800">Sign in</a>
+                </p>
+            </div>
+            
+            <!-- formulir registrasi pengguna -->
+            <form class="space-y-5">
+                
+                <!-- field input username -->
+                <div>
+                    <label class="block text-base font-bold text-gray-800 mb-2">Username</label>
+                    <input type="text" placeholder="username kamu" 
+                           class="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
+                </div>
+
+                <!-- field input email -->
+                <div>
+                    <label class="block text-base font-bold text-gray-800 mb-2">E-mail</label>
+                    <input type="email" placeholder="example@gmail.com" 
+                           class="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
+                </div>
+
+                <!-- field input password -->
+                <div>
+                    <label class="block text-base font-bold text-gray-800 mb-2">Password</label>
+                    <input type="password" placeholder="minimal 8 karakter" 
+                           class="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
+                </div>
+
+                <!-- field input konfirmasi password -->
+                <div>
+                    <label class="block text-base font-bold text-gray-800 mb-2">Confirm Password</label>
+                    <input type="password" placeholder="ulangi password kamu" 
+                           class="w-full border border-gray-300 rounded-xl px-5 py-3.5 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
+                </div>
+
+                <!-- tombol submit sign up -->
+                <button type="button" class="w-full bg-[#357A4B] hover:bg-[#2b643d] text-white font-bold py-4 rounded-xl shadow-md transition duration-150 text-lg tracking-wide mt-3">
+                    Sign up
+                </button>
+                
+            </form>
+
+        </div>
+
+        <!-- seimbangin agar posisi form tetap simetris -->
+        <div class="hidden lg:block h-6"></div>
+        
+    </div>
+
+    <!-- area kanan: background gradasi hijau -->
+    <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-b from-[#0E5B37] via-[#357A4B] to-[#76933F] relative flex-col justify-between p-10 lg:p-14 text-white h-full">
+        
+        <!-- tombol bantuan support di pojok kanan atas -->
+        <div class="flex justify-end z-10">
+            <a href="#" class="text-base font-semibold hover:underline opacity-90 flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"/>
+                </svg>
+                <span>Support</span>
+            </a>
+        </div>
+
+        <!-- pesan sambutan hello friend di tengah -->
+        <div class="flex flex-col items-center text-center max-w-lg mx-auto z-10">
+            <h2 class="text-5xl lg:text-6xl font-black mb-6 tracking-tight">Welcome Back!</h2>
+            <p class="text-white/90 text-lg lg:text-xl leading-relaxed mb-10">
+                Sudah punya akun EcoSwap? Masuk sekarang untuk mulai bertukar barang ramah lingkungan.
+            </p>
+            <!-- tombol ajakan sign in -->
+            <a href="/login/" class="border-2 border-white text-white font-bold px-12 py-3.5 rounded-full hover:bg-white hover:text-green-800 transition duration-150 text-base tracking-widest uppercase">
+                SIGN IN
+            </a>
+        </div>
+
+        <!-- penunjuk navigasi slider di bagian bawah -->
+        <div class="flex justify-center items-center space-x-3 text-white/60 text-sm z-10 pb-2">
+            <span class="cursor-pointer hover:text-white">&lt;</span>
+            <span class="w-2.5 h-2.5 bg-white/40 rounded-full"></span>
+            <span class="w-3.5 h-3.5 bg-white rounded-full"></span>
+            <span class="w-2.5 h-2.5 bg-white/40 rounded-full"></span>
+            <span class="cursor-pointer hover:text-white">&gt;</span>
+        </div>
+
+    </div>
+
+</body>
+</html>

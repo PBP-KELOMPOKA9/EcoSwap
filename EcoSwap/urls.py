@@ -18,12 +18,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from profil.views import login_view
+from profil.views import login_view, register_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # rute menuju halaman login buatan nayput
+    #halaman login 
     path('login/', login_view, name='login'),
+    #halaman register
+    path('register/', register_view, name='register'),
 ]
 
 if settings.DEBUG:
