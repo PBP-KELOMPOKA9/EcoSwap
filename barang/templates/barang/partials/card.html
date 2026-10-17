@@ -1,0 +1,31 @@
+{% load barang_extras %}
+{% comment %}Kartu barang. Butuh variabel: barang, wishlist_ids. Opsional: wishlist_mode.{% endcomment %}
+{% url 'barang:detail' barang.pk as url_detail %}
+<article class="card {% if not barang.is_tersedia %}is-gone{% endif %}" {% if wishlist_mode %}data-wishlist-card{% endif %}>
+  <a href="{{ url_detail|default:"#" }}" class="card__media" tabindex="-1" aria-hidden="true">
+    {% with foto=barang.foto_utama %}
+      {% if foto %}
+      <img src="{{ foto.gambar.url }}" alt="" loading="lazy">
+      {% else %}
+      <span class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg></span>
+      {% endif %}
+    {% endwith %}
+    <span class="badge badge--{{ barang.tipe }} card__badge">{{ barang.get_tipe_display }}</span>
+    {% if not barang.is_tersedia %}<span class="card__gone">Sudah tidak tersedia</span>{% endif %}
+  </a>
+  {% include "barang/partials/heart.html" %}
+  <div class="card__body">
+    <a href="{{ url_detail|default:"#" }}" class="card__title">{{ barang.judul }}</a>
+    <p class="card__cat">{{ barang.get_kategori_display }}</p>
+    <p class="card__price">{{ barang|harga_label }}</p>
+    <div class="card__foot">
+      <span class="chip-kondisi">{{ barang.get_kondisi_display }}</span>
+      {% if barang.lokasi %}
+      <span class="card__loc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        <span>{{ barang.lokasi }}</span>
+      </span>
+      {% endif %}
+    </div>
+  </div>
+</article>

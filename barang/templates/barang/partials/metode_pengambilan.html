@@ -1,0 +1,22 @@
+{% comment %}
+  TODO (Modul 3 · Lokasi & Metode Pengambilan):
+  Ganti isi file ini dengan data metode pengambilan barang dari modul Lokasi.
+  Variabel yang tersedia di sini: barang.
+{% endcomment %}
+<h2 class="info__h">Metode pengambilan</h2>
+<div class="pickup">
+  <div class="pickup__item">
+    <span class="pickup__num">01</span>
+    <div>
+      <p class="pickup__title">Ketemuan langsung</p>
+      <p class="pickup__sub">{{ barang.lokasi|default:"Area sekitar kampus" }}</p>
+    </div>
+  </div>
+  <div class="pickup__item">
+    <span class="pickup__num">02</span>
+    <div>
+      <p class="pickup__title">Kirim via kurir</p>
+      <p class="pickup__sub">JNE / JNT, ongkir ditanggung pembeli</p>
+    </div>
+  </div>
+</div>

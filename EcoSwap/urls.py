@@ -17,6 +17,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+<<<<<<< HEAD
 from django.urls import path
 from profil.views import login_view, register_view
 
@@ -26,6 +27,13 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     #halaman register
     path('register/', register_view, name='register'),
+=======
+from django.urls import include, path
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('barang.urls')),
+>>>>>>> dev
 ]
 
 if settings.DEBUG:

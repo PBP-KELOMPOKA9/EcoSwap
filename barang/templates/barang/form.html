@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}{% if mode == 'edit' %}Edit Barang{% else %}Tambah Barang{% endif %}{% endblock %}
+
+{% block content %}
+<section class="form-hero">
+  <p class="eyebrow">Kelola barangmu</p>
+  <h1 class="page-title">{% if mode == 'edit' %}Edit Barang{% else %}Tambah Barang{% endif %}</h1>
+  <p class="page-sub">
+    {% if mode == 'edit' %}Perbarui informasi barangmu. Perubahan langsung tampil di katalog setelah disimpan.{% else %}Lengkapi informasi barang agar mudah ditemukan oleh tetangga kampusmu.{% endif %}
+  </p>
+</section>
+
+<div class="form-area">
+  <form class="form-card" method="post" enctype="multipart/form-data" novalidate data-barang-form>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="field__error" role="alert">{{ form.non_field_errors|join:" " }}</div>
+    {% endif %}
+
+    {# ---------- Foto ---------- #}
+    <div class="field {% if form.foto.errors %}has-error{% endif %}">
+      <span class="field__label" id="label-foto">Foto barang <span class="req">*</span></span>
+      <div class="dropzone" data-dropzone>
+        <span class="dropzone__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M5 15v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-3"/></svg></span>
+        <p class="dropzone__title">Unggah foto (maks. 5)</p>
+        <p class="dropzone__hint">JPG atau PNG, maksimal 5 MB per foto</p>
+        <button type="button" class="btn btn--outline btn--sm" data-pilih-foto aria-describedby="label-foto">Pilih Foto</button>
+        <label for="{{ form.foto.id_for_label }}" class="visually-hidden">Pilih foto barang</label>
+        {{ form.foto }}
+      </div>
+      <div class="thumbs" data-thumbs>
+        {% for foto in form.foto_lama %}
+        <div class="thumb {% if foto.pk in form.foto_dihapus_ids %}is-removed{% endif %}" data-foto-lama>
+          <img src="{{ foto.gambar.url }}" alt="Foto {{ forloop.counter }}">
+          {% if forloop.first %}<span class="thumb__tag">Utama</span>{% endif %}
+          <input type="checkbox" name="hapus_foto" value="{{ foto.pk }}" class="visually-hidden" tabindex="-1" {% if foto.pk in form.foto_dihapus_ids %}checked{% endif %}>
+          <button type="button" class="thumb__x" aria-label="Hapus foto {{ forloop.counter }}"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></span></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% for error in form.foto.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+    </div>
+
+    {# ---------- Judul ---------- #}
+    <div class="field {% if form.judul.errors %}has-error{% endif %}">
+      <label class="field__label" for="{{ form.judul.id_for_label }}">Judul Barang <span class="req">*</span></label>
+      <input type="text" class="input" name="{{ form.judul.html_name }}" id="{{ form.judul.id_for_label }}" value="{{ form.judul.value|default:'' }}" maxlength="100" placeholder="Contoh: Rak buku kayu 4 susun" {% if form.judul.errors %}aria-invalid="true"{% endif %}>
+      {% for error in form.judul.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+    </div>
+
+    {# ---------- Kategori & Kondisi ---------- #}
+    <div class="field field-row">
+      <div class="field {% if form.kategori.errors %}has-error{% endif %}">
+        <label class="field__label" for="{{ form.kategori.id_for_label }}">Kategori <span class="req">*</span></label>
+        <select class="select" name="{{ form.kategori.html_name }}" id="{{ form.kategori.id_for_label }}">
+          {% for value, label in form.kategori.field.choices %}
+          <option value="{{ value }}" {% if form.kategori.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% for error in form.kategori.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field {% if form.kondisi.errors %}has-error{% endif %}">
+        <label class="field__label" for="{{ form.kondisi.id_for_label }}">Kondisi <span class="req">*</span></label>
+        <select class="select" name="{{ form.kondisi.html_name }}" id="{{ form.kondisi.id_for_label }}">
+          {% for value, label in form.kondisi.field.choices %}
+          <option value="{{ value }}" {% if form.kondisi.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+        {% for error in form.kondisi.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      </div>
+    </div>
+
+    {# ---------- Tipe transaksi ---------- #}
+    <fieldset class="field {% if form.tipe.errors %}has-error{% endif %}">
+      <legend class="field__label">Tipe Transaksi <span class="req">*</span></legend>
+      <div class="tipe">
+        {% for value, label in form.tipe.field.choices %}
+        <label class="tipe__opt">
+          <input type="radio" name="{{ form.tipe.html_name }}" value="{{ value }}" {% if form.tipe.value == value %}checked{% endif %}>
+          <span class="tipe__card">
+            <span class="tipe__icon">
+              {% if value == 'donasi' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg>
+              {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+              {% endif %}
+            </span>
+            <span>
+              <span class="tipe__name">{{ label }}</span>
+              <span class="tipe__sub">{% if value == 'donasi' %}Berikan secara gratis{% else %}Tentukan harga terbaik{% endif %}</span>
+            </span>
+            <span class="tipe__radio" aria-hidden="true"></span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+      {% for error in form.tipe.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+    </fieldset>
+
+    {# ---------- Harga (khusus Jual) ---------- #}
+    <div class="field {% if form.harga.errors %}has-error{% endif %}" data-harga-field>
+      <label class="field__label" for="{{ form.harga.id_for_label }}">Harga <span class="req">*</span></label>
+      <div class="rp-input">
+        <span class="rp-input__pre">Rp</span>
+        <input type="text" inputmode="numeric" name="{{ form.harga.html_name }}" id="{{ form.harga.id_for_label }}" value="{{ form.harga.value|default:'' }}" placeholder="0" autocomplete="off">
+      </div>
+      {% if form.harga.errors %}
+        {% for error in form.harga.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+      {% else %}
+        <p class="field__help">Masukkan harga yang wajar untuk barang bekas.</p>
+      {% endif %}
+    </div>
+
+    {# ---------- Deskripsi ---------- #}
+    <div class="field {% if form.deskripsi.errors %}has-error{% endif %}">
+      <label class="field__label" for="{{ form.deskripsi.id_for_label }}">Deskripsi <span class="req">*</span></label>
+      <div class="textarea-wrap">
+        <textarea class="textarea" name="{{ form.deskripsi.html_name }}" id="{{ form.deskripsi.id_for_label }}" rows="5" maxlength="500" placeholder="Ceritakan kondisi, ukuran, dan detail penting lainnya...">{{ form.deskripsi.value|default:'' }}</textarea>
+        <span class="counter" data-counter aria-live="polite">0/500</span>
+      </div>
+      {% for error in form.deskripsi.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% if mode == 'edit' %}{{ barang.get_absolute_url }}{% else %}{% url 'barang:barang_saya' %}{% endif %}" class="btn btn--outline btn--lg">Batal</a>
+      <button type="submit" class="btn btn--primary btn--lg" data-submit>{% if mode == 'edit' %}Simpan Perubahan{% else %}Simpan Barang{% endif %}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
