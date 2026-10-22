@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load barang_extras %}
+
+{% block title %}{{ barang.judul }}{% endblock %}
+
+{% block content %}
+<div class="container detail">
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{% url 'barang:katalog' %}">Katalog</a>
+    <span class="sep" aria-hidden="true">&rsaquo;</span>
+    <a href="{% url 'barang:katalog' %}?kategori={{ barang.kategori }}">{{ barang.get_kategori_display }}</a>
+    <span class="sep" aria-hidden="true">&rsaquo;</span>
+    <span aria-current="page">{{ barang.judul }}</span>
+  </nav>
+
+  <div class="detail__grid">
+    <div class="gallery">
+      <div class="gallery__main">
+        {% if fotos %}
+        <img src="{{ fotos.0.gambar.url }}" alt="Foto {{ barang.judul }}" data-gallery-main>
+        <span class="gallery__count">{{ fotos|length }} foto</span>
+        {% else %}
+        <span class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg></span>
+        {% endif %}
+      </div>
+      {% if fotos|length > 1 %}
+      <div class="gallery__thumbs">
+        {% for foto in fotos %}
+        <button type="button" class="gallery__thumb {% if forloop.first %}is-active{% endif %}" data-gallery-thumb data-src="{{ foto.gambar.url }}" aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="Lihat foto {{ forloop.counter }}">
+          <img src="{{ foto.gambar.url }}" alt="" loading="lazy">
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="info">
+      <span class="badge badge--{{ barang.tipe }}">{{ barang.get_tipe_display }}</span>
+      {% if not is_pemilik %}
+      <div class="info__fav">{% include "barang/partials/heart.html" %}</div>
+      {% endif %}
+      <h1 class="info__title">{{ barang.judul }}</h1>
+      <p class="info__price">{{ barang|harga_label }}</p>
+
+      <dl class="specs">
+        <div><dt>Kategori</dt><dd>{{ barang.get_kategori_display }}</dd></div>
+        <div><dt>Kondisi</dt><dd>{{ barang.get_kondisi_display }}</dd></div>
+        <div>
+          <dt>Status</dt>
+          <dd>
+            {% if is_pemilik %}
+            <form method="post" action="{% url 'barang:ubah_status' barang.pk %}">
+              {% csrf_token %}
+              <label for="status" class="visually-hidden">Ubah status barang</label>
+              <select id="status" name="status" class="status-select" data-auto-submit>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if value == barang.status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+              <noscript><button type="submit" class="btn btn--sm btn--outline">Simpan</button></noscript>
+            </form>
+            {% else %}
+            <span class="badge badge--{{ barang.status }}">{{ barang.get_status_display }}</span>
+            {% endif %}
+          </dd>
+        </div>
+      </dl>
+
+      <h2 class="info__h">Deskripsi</h2>
+      <p class="info__desc">{{ barang.deskripsi }}</p>
+
+      {% include "barang/partials/metode_pengambilan.html" %}
+
+      {% if is_pemilik %}
+      {# TODO (Modul 2 · Transaksi): isi jumlah pengajuan dan arahkan "Lihat Pengajuan" ke halaman pengajuan. #}
+      <div class="minat">
+        <span class="minat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 10h8M8 14h5"/></svg></span>
+        <div>
+          <p class="minat__title">Pengajuan minat</p>
+          <p class="minat__sub">Lihat siapa saja yang tertarik dengan barang ini.</p>
+        </div>
+        <a href="#" class="btn btn--lime">Lihat Pengajuan</a>
+      </div>
+
+      <div class="actions">
+        <a href="{% url 'barang:edit' barang.pk %}" class="btn btn--primary btn--lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>
+          Edit Barang
+        </a>
+        <button type="button" class="btn btn--danger-outline btn--lg" data-hapus-url="{% url 'barang:hapus' barang.pk %}" data-hapus-nama="{{ barang.judul }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          Hapus Barang
+        </button>
+      </div>
+
+      {% else %}
+      {# TODO (Modul 4 · Ulasan): ganti rating dan link profil dengan data asli. #}
+      <div class="owner">
+        <span class="avatar" aria-hidden="true">{{ barang.pemilik|inisial }}</span>
+        <div>
+          <p class="owner__name">{{ barang.pemilik.get_full_name|default:barang.pemilik.username }}</p>
+          <p class="owner__meta">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg>
+            Belum ada ulasan
+          </p>
+        </div>
+        <a href="#" class="link-green">Lihat Profil</a>
+      </div>
+
+      <div class="actions">
+        {# TODO (Modul 2 · Transaksi): ganti action ke URL ajukan minat. #}
+        {% if barang.is_tersedia %}
+        <a href="#" class="btn btn--primary btn--lg">Ajukan Minat</a>
+        {% else %}
+        <button type="button" class="btn btn--primary btn--lg" disabled>{{ barang.get_status_display }}</button>
+        {% endif %}
+        {# TODO (Modul 5 · Chat): ganti href ke URL chat dengan pemilik. #}
+        <a href="#" class="btn btn--outline btn--lg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="13" rx="3"/><path d="M8 20l3-3M8.5 9.5h7M8.5 12.5h4.5"/></svg>
+          Chat Pemilik
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if serupa and not is_pemilik %}
+  <section class="serupa" aria-labelledby="serupa-judul">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Pilihan lain untukmu</p>
+        <h2 class="page-title" id="serupa-judul">Barang Serupa</h2>
+      </div>
+      <a href="{% url 'barang:katalog' %}?kategori={{ barang.kategori }}" class="link-green">Lihat semua</a>
+    </div>
+    <div class="grid-barang">
+      {% for barang in serupa %}
+        {% include "barang/partials/card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block modal %}
+{% if is_pemilik %}
+  {% url 'barang:barang_saya' as hapus_next %}
+  {% include "barang/partials/modal_hapus.html" with hapus_next=hapus_next %}
+{% endif %}
+{% endblock %}
