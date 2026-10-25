@@ -910,6 +910,24 @@ fieldset.field legend { padding: 0; }
 .modal__acts .btn { min-width: 120px; }
 
 /* ============================================================
+   404
+   ============================================================ */
+.container_notfound {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+  gap: 16px;
+}
+
+.eyebrow_eyebrow--mono {
+  font-size: large;
+  font-weight: bold;
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1180px) {
