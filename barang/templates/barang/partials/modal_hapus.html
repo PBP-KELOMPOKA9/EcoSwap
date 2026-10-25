@@ -1,0 +1,17 @@
+<div class="modal" data-modal-hapus role="dialog" aria-modal="true" aria-labelledby="modal-hapus-judul">
+  <div class="modal__card">
+    <div class="modal__icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+    </div>
+    <h2 class="modal__title" id="modal-hapus-judul">Hapus barang ini?</h2>
+    <p class="modal__text"><strong data-modal-nama>Barang ini</strong> akan dihapus. Barang yang dihapus tidak bisa dikembalikan.</p>
+    <form method="post" action="">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ hapus_next|default:'' }}">
+      <div class="modal__acts">
+        <button type="button" class="btn btn--outline" data-modal-batal>Batal</button>
+        <button type="submit" class="btn btn--danger">Hapus</button>
+      </div>
+    </form>
+  </div>
+</div>

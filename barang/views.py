@@ -8,10 +8,8 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
-from EcoSwap import settings
-
 from .forms import BarangForm, StatusForm
-from .models import Barang, Lokasi, Wishlist
+from .models import Barang, Wishlist
 
 PER_HALAMAN = 12
 PILIHAN_URUT = {
@@ -246,15 +244,3 @@ def toggle_wishlist(request, pk):
     else:
         messages.success(request, f'"{barang.judul}" dihapus dari wishlist.')
     return _redirect_aman(request, 'barang:katalog')
-
-@login_required
-def peta_view(request):
-    lokasi = Lokasi.objects.all()
-    data = [
-        {"nama": l.nama, "lat": l.lat, "lng": l.lng}
-        for l in lokasi
-    ]
-    return render(request, "peta/peta.html", {
-        "api_key": settings.GOOGLE_MAPS_API_KEY,
-        "lokasi_data": data,
-    })

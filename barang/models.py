@@ -109,13 +109,3 @@ def hapus_file_foto(sender, instance, **kwargs):
     """Hapus file gambar dari storage saat datanya dihapus."""
     if instance.gambar:
         instance.gambar.delete(save=False)
-
-
-class Lokasi(models.Model):
-    nama = models.CharField(max_length=100)
-    alamat = models.CharField(max_length=255, blank=True, default="")
-    lat = models.FloatField()
-    lng = models.FloatField()
-
-    def __str__(self):
-        return self.nama
