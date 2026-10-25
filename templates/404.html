@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}404{% endblock %}
+
+{% block content %}
+<div class="container_notfound">
+  <p class="eyebrow_eyebrow--mono">Error 404</p>
+  <p class="notfound__code" aria-hidden="true">404</p>
+  <h1 class="page-title">Halaman tidak ditemukan</h1>
+  <p class="page-sub notfound__text">Alamat yang kamu buka tidak ada, sudah dipindah, atau barangnya sudah dihapus
+    pemiliknya.</p>
+  <div class="notfound__actions">
+    <a href="{% url 'barang:home' %}" class="btn btn--primary btn--lg">Kembali ke Beranda</a>
+    <a href="{% url 'barang:katalog' %}" class="btn btn--outline btn--lg">Jelajahi Katalog</a>
+  </div>
+</div>
+{% endblock %}
