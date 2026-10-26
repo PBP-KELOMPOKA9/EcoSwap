@@ -11,6 +11,9 @@ from django.views.decorators.http import require_POST
 from .forms import BarangForm, StatusForm
 from .models import Barang, Wishlist
 
+def home(request):
+    return render(request, 'home.html')
+
 PER_HALAMAN = 12
 PILIHAN_URUT = {
     'terbaru': ('Terbaru', ['-created_at']),
