@@ -27,6 +27,7 @@ urlpatterns = [
     # halaman login dan register buatan nayput
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
+    path('ulasan/', include('ulasan.urls')),
 ]
 
 if settings.DEBUG:

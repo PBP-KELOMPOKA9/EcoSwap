@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'profil',
     'barang',
 
+    'ulasan',
 ]
 
 MIDDLEWARE = [
