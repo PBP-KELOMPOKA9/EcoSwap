@@ -5,8 +5,8 @@ from . import views
 app_name = 'barang'
 
 urlpatterns = [
-    path('', views.katalog, name='katalog'),
-    path('', views.katalog, name='home'),
+    path('', views.home, name='home'),
+    path('katalog', views.katalog, name='katalog'),
     path('barang/tambah/', views.tambah, name='tambah'),
     path('barang/<int:pk>/', views.detail, name='detail'),
     path('barang/<int:pk>/edit/', views.edit, name='edit'),
