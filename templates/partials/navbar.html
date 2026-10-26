@@ -14,6 +14,7 @@
     </a>
 
     <nav class="navbar__menu" aria-label="Menu utama">
+      <a href="/" class="navbar__link {% if nav_aktif == 'beranda' %}is-active{% endif %}" {% if nav_aktif == 'beranda' %}aria-current="page"{% endif %}>Beranda</a>
       {% if url_katalog %}
       <a href="{{ url_katalog }}" class="navbar__link {% if nav_aktif == 'katalog' %}is-active{% endif %}" {% if nav_aktif == 'katalog' %}aria-current="page"{% endif %}>Katalog</a>
       {% endif %}
