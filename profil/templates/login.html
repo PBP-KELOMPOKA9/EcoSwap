@@ -21,23 +21,34 @@
         <!-- form login atur lebar dan teks -->
         <div class="w-full max-w-[500px] mx-auto my-auto py-2">
             
-            <!-- judul sign in dan ajakan daftar akun -->
-            <div class="mb-8">
-                <!-- judul sign in warna hijau ukuran pas -->
+            <!-- judul sign in warna hijau dan ajakan daftar akun -->
+            <div class="mb-6">
                 <h1 class="text-4xl lg:text-5xl font-black text-[#357A4B] tracking-tight">Sign in</h1>
-                <p class="text-gray-500 mt-3 text-base lg:text-lg">
+                <p class="text-gray-500 mt-2 text-base lg:text-lg">
                     Don't have an account? 
                     <a href="/register/" class="text-green-700 font-bold underline hover:text-green-800">Create now</a>
                 </p>
             </div>
+
+            <!-- kotak pesan peringatan jika salah password atau sukses daftar -->
+            {% if messages %}
+                <div class="mb-5 space-y-2">
+                    {% for message in messages %}
+                        <div class="p-3.5 rounded-xl text-sm font-medium {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-red-50 text-red-700 border border-red-200{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             
-            <!-- formulir login pengguna -->
-            <form class="space-y-6">
+            <!-- formulir login pengguna dengan method post -->
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
                 
-                <!-- field input email -->
+                <!-- field input email atau username -->
                 <div>
-                    <label class="block text-base font-bold text-gray-800 mb-2">E-mail</label>
-                    <input type="email" placeholder="asoyybah@gmail.com" 
+                    <label class="block text-base font-bold text-gray-800 mb-2">E-mail / Username</label>
+                    <input type="text" name="username" required placeholder="username atau email kamu" 
                            class="w-full border border-gray-300 rounded-xl px-5 py-4 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
                 </div>
 
@@ -45,7 +56,7 @@
                 <div>
                     <label class="block text-base font-bold text-gray-800 mb-2">Password</label>
                     <div class="relative">
-                        <input type="password" placeholder="@#*%" 
+                        <input type="password" name="password" required placeholder="@#*%" 
                                class="w-full border border-gray-300 rounded-xl px-5 py-4 pr-14 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 transition shadow-sm">
                         <!-- ikon mata intip password -->
                         <button type="button" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600">
@@ -60,14 +71,14 @@
                 <!-- remember me dan forgot password -->
                 <div class="flex items-center justify-between text-base pt-1">
                     <label class="flex items-center text-gray-700 cursor-pointer select-none">
-                        <input type="checkbox" class="w-5 h-5 rounded border-gray-300 text-green-700 focus:ring-green-600 mr-2.5">
+                        <input type="checkbox" name="remember" class="w-5 h-5 rounded border-gray-300 text-green-700 focus:ring-green-600 mr-2.5">
                         Remember me
                     </label>
                     <a href="#" class="font-bold text-gray-800 underline hover:text-green-700">Forgot Password?</a>
                 </div>
 
                 <!-- tombol submit sign in -->
-                <button type="button" class="w-full bg-[#357A4B] hover:bg-[#2b643d] text-white font-bold py-4 rounded-xl shadow-md transition duration-150 text-lg tracking-wide mt-3">
+                <button type="submit" class="w-full bg-[#357A4B] hover:bg-[#2b643d] text-white font-bold py-4 rounded-xl shadow-md transition duration-150 text-lg tracking-wide mt-3">
                     Sign in
                 </button>
                 

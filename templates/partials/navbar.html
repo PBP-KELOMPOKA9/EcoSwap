@@ -61,7 +61,7 @@
       </div>
       {% else %}
       {# TODO (Modul 2 · Profil): ganti href ke URL login milik modul Profil. #}
-      <a href="{% url 'admin:login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn--primary">Login</a>
+      <a href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" class="btn btn--primary">Login</a>
       {% endif %}
 
       <button type="button" class="icon-btn navbar__burger" data-burger aria-expanded="false" aria-label="Buka menu">

@@ -17,23 +17,16 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-<<<<<<< HEAD
-from django.urls import path
+from django.urls import include, path
 from profil.views import login_view, register_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    #halaman login 
-    path('login/', login_view, name='login'),
-    #halaman register
-    path('register/', register_view, name='register'),
-=======
-from django.urls import include, path
-
-urlpatterns = [
-    path('admin/', admin.site.urls),
+    # halaman beranda dan katalog buatan najwa
     path('', include('barang.urls')),
->>>>>>> dev
+    # halaman login dan register buatan nayput
+    path('login/', login_view, name='login'),
+    path('register/', register_view, name='register'),
 ]
 
 if settings.DEBUG:
