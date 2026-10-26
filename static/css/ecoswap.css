@@ -713,6 +713,29 @@ main.page { flex: 1 0 auto; }
 .section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .section-head .page-title { margin-top: 10px; font-size: 26px; }
 
+/* ---------- Ringkasan ulasan (jembatan ke Modul 4) ---------- */
+.ulasan-ringkas { margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--line); }
+.ulasan-ringkas__grid { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 28px; align-items: start; }
+.ulasan-skor {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 28px 22px;
+  background: var(--cream-card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+.ulasan-skor__angka { font-family: var(--font-head); font-weight: 800; font-size: 44px; line-height: 1; }
+.ulasan-skor__total { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.bintang { color: #E2A400; font-size: 20px; letter-spacing: 2px; line-height: 1; }
+.bintang--sm { font-size: 14px; letter-spacing: 1px; margin-left: auto; }
+.ulasan-list { display: flex; flex-direction: column; gap: 12px; }
+.ulasan-item { padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.ulasan-item__head { display: flex; align-items: center; gap: 12px; }
+.avatar--sm { width: 36px; height: 36px; font-size: 12px; }
+.ulasan-item__nama { font-size: 13px; font-weight: 700; }
+.ulasan-item__tgl { font-size: 11px; color: var(--muted-soft); }
+.ulasan-item__teks { margin-top: 10px; font-size: 13px; line-height: 1.65; color: #2A3A4A; }
+
 /* ============================================================
    FORM TAMBAH / EDIT
    ============================================================ */
@@ -962,6 +985,7 @@ fieldset.field legend { padding: 0; }
 .katalog__body { grid-template-columns: 1fr; }
   .filter { position: static; }
   .detail__grid { grid-template-columns: 1fr; }
+  .ulasan-ringkas__grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 720px) {

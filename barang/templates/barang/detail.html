@@ -94,14 +94,14 @@
       </div>
 
       {% else %}
-      {# TODO (Modul 4 · Ulasan): ganti rating dan link profil dengan data asli. #}
+      {# TODO (Modul 2 · Profil): arahkan "Lihat Profil" ke halaman profil pemilik. #}
       <div class="owner">
         <span class="avatar" aria-hidden="true">{{ barang.pemilik|inisial }}</span>
         <div>
           <p class="owner__name">{{ barang.pemilik.get_full_name|default:barang.pemilik.username }}</p>
           <p class="owner__meta">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/></svg>
-            Belum ada ulasan
+            {% if pemilik_rating %}{{ pemilik_rating }} ({{ pemilik_total_ulasan }} ulasan){% else %}Belum ada ulasan{% endif %}
           </p>
         </div>
         <a href="#" class="link-green">Lihat Profil</a>
@@ -123,6 +123,56 @@
       {% endif %}
     </div>
   </div>
+
+  {% url 'ulasan:daftar_ulasan' barang.pk as url_ulasan %}
+  {% if url_ulasan %}
+  <section class="ulasan-ringkas" aria-labelledby="ulasan-judul">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">Kata mereka</p>
+        <h2 class="page-title" id="ulasan-judul">Ulasan Barang</h2>
+      </div>
+      {% if ulasan_total %}<a href="{{ url_ulasan }}" class="link-green">Lihat semua ulasan</a>{% endif %}
+    </div>
+
+    {% if ulasan_total %}
+    <div class="ulasan-ringkas__grid">
+      <div class="ulasan-skor">
+        <p class="ulasan-skor__angka">{{ ulasan_rata }}</p>
+        <p class="bintang" aria-label="Rating {{ ulasan_rata }} dari 5">{% for i in "12345" %}{% if forloop.counter <= ulasan_bintang %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</p>
+        <p class="ulasan-skor__total">{{ ulasan_total }} ulasan</p>
+        {% if not is_pemilik %}
+        <a href="{{ url_ulasan }}" class="btn btn--outline btn--block">Tulis Ulasan</a>
+        {% endif %}
+      </div>
+      <div class="ulasan-list">
+        {% for ulasan in ulasan_terbaru %}
+        <article class="ulasan-item">
+          <div class="ulasan-item__head">
+            <span class="avatar avatar--sm" aria-hidden="true">{{ ulasan.user|inisial }}</span>
+            <div>
+              <p class="ulasan-item__nama">{{ ulasan.user.get_full_name|default:ulasan.user.username }}</p>
+              <p class="ulasan-item__tgl">{{ ulasan.tanggal_dibuat|date:"j F Y" }}</p>
+            </div>
+            <p class="bintang bintang--sm" aria-label="Rating {{ ulasan.rating }} dari 5">{% for i in "12345" %}{% if forloop.counter <= ulasan.rating %}&#9733;{% else %}&#9734;{% endif %}{% endfor %}</p>
+          </div>
+          {% if ulasan.komentar %}<p class="ulasan-item__teks">{{ ulasan.komentar|truncatechars:180 }}</p>{% endif %}
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">
+      {% include "barang/partials/empty_heart.svg.html" %}
+      <div>
+        <h3 class="empty__title">Belum ada ulasan</h3>
+        <p class="empty__text">{% if is_pemilik %}Ulasan dari pencari akan muncul di sini setelah barangmu diambil.{% else %}Jadi yang pertama memberi ulasan untuk barang ini.{% endif %}</p>
+        {% if not is_pemilik %}<a href="{{ url_ulasan }}" class="btn btn--primary">Tulis Ulasan</a>{% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
 
   {% if serupa and not is_pemilik %}
   <section class="serupa" aria-labelledby="serupa-judul">
