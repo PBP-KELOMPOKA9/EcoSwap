@@ -18,15 +18,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
-from profil.views import login_view, register_view
+from profil.views import login_view, register_view, logout_view, profile_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     # halaman beranda dan katalog buatan najwa
     path('', include('barang.urls')),
-    # halaman login dan register buatan nayput
+    # halaman login, register, logout, dan profil buatan nayput
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
+    path('logout/', logout_view, name='logout'),
+    path('profil/', profile_view, name='profile'),
+
     path('ulasan/', include('ulasan.urls')),
 ]
 

@@ -33,6 +33,9 @@ SECRET_KEY = 'django-insecure-c&d4#@k3bly-!ebnb(%tz)wv$dfbw(3y-z$3d)!3lxn6+=(w5g
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "cheryl-mahira-ecoswap.pws.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://cheryl-mahira-ecoswap.pws.cs.ui.ac.id'
+]
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 # Application definition

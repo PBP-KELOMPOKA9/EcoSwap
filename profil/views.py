@@ -1,7 +1,10 @@
+import re
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from .models import UserProfile
 
 # fungsi untuk memproses login pengguna
 def login_view(request):
@@ -58,3 +61,47 @@ def register_view(request):
         return redirect('login')
 
     return render(request, 'register.html')
+
+# fungsi untuk keluar akun (logout)
+def logout_view(request):
+    logout(request)
+    return redirect('/')
+
+# fungsi untuk menampilkan dan memperbarui halaman profil pengguna
+@login_required(login_url='/login/')
+def profile_view(request):
+    # ambil atau buat profil otomatis untuk user yang sedang aktif
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        nomor_telepon = request.POST.get('nomor_telepon', '').strip()
+
+        # validasi nomor whatsapp jika diisi
+        if nomor_telepon:
+            # bersihkan spasi atau tanda hubung
+            clean_phone = nomor_telepon.replace(' ', '').replace('-', '')
+            # validasi: harus angka, diawali 08 atau 62, dan panjang 10-14 digit
+            if not re.match(r'^(\+62|62|08)[0-9]{8,12}$', clean_phone):
+                messages.error(request, 'nomor whatsapp tidak valid! harus berupa angka diawali 08 atau 62 (contoh: 081234567890).')
+                return render(request, 'profile.html', {'profile': profile})
+            nomor_telepon = clean_phone
+
+        # simpan pembaruan nama dan email ke model user
+        request.user.first_name = request.POST.get('first_name', request.user.first_name).strip()
+        request.user.email = request.POST.get('email', request.user.email).strip()
+        request.user.save()
+
+        # simpan data tambahan ke model userprofile
+        profile.nomor_telepon = nomor_telepon
+        profile.domisili = request.POST.get('domisili', profile.domisili).strip()
+        profile.bio = request.POST.get('bio', profile.bio).strip()
+
+        # simpan foto profil jika ada berkas yang diunggah
+        if 'foto_profil' in request.FILES:
+            profile.foto_profil = request.FILES['foto_profil']
+
+        profile.save()
+        messages.success(request, 'profil berhasil diperbarui!')
+        return redirect('profile')
+
+    return render(request, 'profile.html', {'profile': profile})

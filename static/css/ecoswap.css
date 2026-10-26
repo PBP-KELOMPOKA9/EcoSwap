@@ -25,8 +25,8 @@
   --white: #FFFFFF;
 
   --font-head: 'Montserrat', 'Segoe UI', sans-serif;
-  --font-body: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, monospace;
+  --font-body: 'Poppins', 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
 
   --radius-sm: 8px;
   --radius: 14px;
@@ -949,6 +949,121 @@ fieldset.field legend { padding: 0; }
   font-size: large;
   font-weight: bold;
 }
+
+/* ============================================================
+   Landing Page (Home)
+   ============================================================ */
+
+    .hero-wrap {
+      background: linear-gradient(135deg, #eef3d6 0%, #dde8c5 60%, #d0e0b5 100%);
+      padding: 64px 64px 72px;
+      min-height: 320px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      gap: 48px;
+      justify-content: space-between;
+    }
+  
+    .hero-content { max-width: 720px; position: relative; z-index: 2; }
+    .eyebrow {
+      font-family: var(--font-body);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #00804C;
+      margin-bottom: 14px;
+    }
+    .hero-title {
+      font-family: var(--font-head);
+      font-size: 52px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: #001F3F;
+    }
+    .hero-title .highlight {
+      color: #4a7a00;
+      background: #DBE64C;
+      padding: 2px 8px;
+      border-radius: 6px;
+      display: inline;
+    }
+    .hero-sub {
+      margin-top: 18px;
+      max-width: 480px;
+      font-size: 14.5px;
+      line-height: 1.7;
+      color: #5F6B7A;
+    }
+    /* Search bar */
+    .search-bar {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 540px;
+      background: #fff;
+      border-radius: 999px;
+      border: 1px solid #dae2cc;
+      box-shadow: 0 8px 24px rgba(0, 31, 63, 0.09);
+      padding: 6px 6px 6px 20px;
+    }
+    .search-bar svg {
+      width: 18px; height: 18px;
+      color: #8A94A1;
+      flex: none;
+    }
+    .search-bar input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: #001F3F;
+      padding: 8px 0;
+    }
+    .search-bar input::placeholder { color: #9ba8b5; }
+    .btn-search {
+      background: #001F3F;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-family: var(--font-body);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .hero-stats {
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 11.5px;
+      color: #6b7a5a;
+      font-weight: 600;
+    }
+    .hero-stats .sep {
+      width: 4px; height: 4px;
+      border-radius: 999px;
+      background: #aab890;
+    }
+
+    .hero-right-content {
+      flex: none;
+    }
+
+    .hero-right-content img {
+      width: 350px;      
+      height: auto;      
+      object-fit: cover;
+      margin-right: 80px;
+    }
 
 /* ============================================================
    RESPONSIVE

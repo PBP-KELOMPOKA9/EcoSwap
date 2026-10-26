@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil Saya - EcoSwap{% endblock %}
+
+{% block content %}
+<main class="page" style="background: var(--cream); min-height: 80vh; padding: 48px 0 80px;">
+  <div class="container">
+    
+    <!-- judul halaman dan deskripsi universal -->
+    <div style="margin-bottom: 32px;">
+      <span class="eyebrow">AKUN PENGGUNA &bull; ECOSWAP</span>
+      <h1 class="page-title" style="margin-top: 6px;">Profil Pengguna</h1>
+      <p class="page-sub">Kelola identitas akun, nomor WhatsApp untuk kemudahan transaksi bertukar barang, dan alamat domisili.</p>
+    </div>
+
+    <!-- notifikasi jika berhasil update atau terjadi kesalahan -->
+    {% if messages %}
+    <div style="margin-bottom: 24px;">
+      {% for message in messages %}
+        {% if message.tags == 'error' %}
+        <div style="padding: 14px 18px; border-radius: var(--radius); background: var(--red-soft); color: var(--red-dark); border: 1px solid #F0B3AE; font-size: 14px; font-weight: 600;">
+          {{ message }}
+        </div>
+        {% else %}
+        <div style="padding: 14px 18px; border-radius: var(--radius); background: var(--mint); color: var(--green-dark); border: 1px solid var(--mint-line); font-size: 14px; font-weight: 600;">
+          {{ message }}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- tata letak 2 kolom profesional -->
+    <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 32px; align-items: start;">
+      
+      <!-- kolom kiri: kartu ringkasan identitas -->
+      <div style="background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px 24px; text-align: center; box-shadow: var(--shadow-card);">
+        
+        <!-- avatar foto profil atau inisial -->
+        <div style="width: 96px; height: 96px; border-radius: 999px; margin: 0 auto 18px; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 36px; font-weight: 800; overflow: hidden; border: 3px solid var(--mint-line);">
+          {% if profile.foto_profil %}
+            <img src="{{ profile.foto_profil.url }}" alt="{{ request.user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
+          {% else %}
+            {{ request.user.username|make_list|first|upper }}
+          {% endif %}
+        </div>
+
+        <h2 style="font-family: var(--font-head); font-weight: 700; font-size: 20px; color: var(--navy);">
+          {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
+        </h2>
+        <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">@{{ request.user.username }}</p>
+
+        <div style="margin: 16px 0;">
+          <span class="badge badge--tersedia">Pengguna Aktif</span>
+        </div>
+
+        <p style="font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;">
+          {% if profile.bio %}{{ profile.bio }}{% else %}<span style="font-style: italic;">Belum ada bio singkat. Peduli lingkungan dan gemar bertukar barang layak pakai.</span>{% endif %}
+        </p>
+
+        <button type="button" onclick="toggleEditModal(true)" class="btn btn--primary btn--block">
+          Edit Profil
+        </button>
+
+        <form method="post" action="{% url 'logout' %}" style="margin-top: 10px;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--danger-outline btn--block">
+            Sign Out
+          </button>
+        </form>
+      </div>
+
+      <!-- kolom kanan: rincian data pengguna -->
+      <div style="background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-card);">
+        <h3 style="font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--line);">
+          Informasi Akun &amp; Kontak
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+          
+          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Nama Lengkap</span>
+            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">{{ request.user.first_name|default:"-" }}</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Email Akun</span>
+            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">{{ request.user.email|default:"-" }}</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Nomor WhatsApp / HP</span>
+            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">
+              {% if profile.nomor_telepon %}{{ profile.nomor_telepon }}{% else %}<span style="color: var(--muted-soft); font-style: italic;">Belum diisi (diperlukan untuk transaksi)</span>{% endif %}
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Alamat / Domisili</span>
+            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">
+              {% if profile.domisili %}{{ profile.domisili }}{% else %}<span style="color: var(--muted-soft); font-style: italic;">Belum diisi</span>{% endif %}
+            </span>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 12px; color: var(--muted);">Ingin memperbarui data atau kontakmu?</span>
+          <button type="button" onclick="toggleEditModal(true)" class="btn btn--outline btn--sm">
+            Ubah Informasi
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<!-- modal edit profil -->
+<div id="editModal" class="modal">
+  <div class="modal__card" style="max-width: 520px; text-align: left;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px;">
+      <h3 style="font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--navy);">Edit Profil Pengguna</h3>
+      <button type="button" onclick="toggleEditModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted);">&times;</button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Nama Lengkap</label>
+          <input type="text" name="first_name" value="{{ request.user.first_name }}" class="input" placeholder="Nama lengkap kamu">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Email</label>
+          <input type="email" name="email" value="{{ request.user.email }}" class="input" placeholder="email@contoh.com">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Nomor WhatsApp / HP</label>
+          <input type="tel" name="nomor_telepon" value="{{ profile.nomor_telepon|default:'' }}" class="input" placeholder="08xxxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+          <span style="font-size: 11px; color: var(--muted); margin-top: 4px; display: block;">Format nomor Indonesia (diawali 08 atau 62, 10-14 digit angka).</span>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Alamat / Domisili</label>
+          <input type="text" name="domisili" value="{{ profile.domisili|default:'' }}" class="input" placeholder="Contoh: Depok, Jakarta Selatan, dll">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Bio Singkat</label>
+          <textarea name="bio" class="input" style="min-height: 80px; padding: 10px;" placeholder="Ceritakan sedikit tentang dirimu...">{{ profile.bio|default:'' }}</textarea>
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Foto Profil</label>
+          <input type="file" name="foto_profil" accept="image/*" class="input" style="padding-top: 8px;">
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" onclick="toggleEditModal(false)" class="btn btn--outline">Batal</button>
+        <button type="submit" class="btn btn--primary">Simpan Perubahan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleEditModal(show) {
+    const modal = document.getElementById('editModal');
+    if (show) {
+      modal.classList.add('is-open');
+    } else {
+      modal.classList.remove('is-open');
+    }
+  }
+</script>
+{% endblock %}
