@@ -31,7 +31,7 @@
     </div>
     {% endif %}
 
-    <!-- tata letak 2 kolom profesional -->
+    <!-- tata letak 2 kolom  -->
     <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 32px; align-items: start;">
       
       <!-- kolom kiri: kartu ringkasan identitas -->
@@ -59,10 +59,17 @@
           {% if profile.bio %}{{ profile.bio }}{% else %}<span style="font-style: italic;">Belum ada bio singkat. Peduli lingkungan dan gemar bertukar barang layak pakai.</span>{% endif %}
         </p>
 
+        <!-- tombol edit profil -->
         <button type="button" onclick="toggleEditModal(true)" class="btn btn--primary btn--block">
           Edit Profil
         </button>
 
+        <!-- tombol ganti password -->
+        <button type="button" onclick="togglePasswordModal(true)" class="btn btn--outline btn--block" style="margin-top: 10px;">
+          Ganti Password
+        </button>
+
+        <!-- form logout akun -->
         <form method="post" action="{% url 'logout' %}" style="margin-top: 10px;">
           {% csrf_token %}
           <button type="submit" class="btn btn--danger-outline btn--block">
@@ -170,9 +177,56 @@
   </div>
 </div>
 
+<!-- modal ganti password -->
+<div id="passwordModal" class="modal">
+  <div class="modal__card" style="max-width: 480px; text-align: left;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px;">
+      <h3 style="font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--navy);">Ganti Kata Sandi</h3>
+      <button type="button" onclick="togglePasswordModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted);">&times;</button>
+    </div>
+
+    <form method="post" action="{% url 'change_password' %}">
+      {% csrf_token %}
+      
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Kata Sandi Lama</label>
+          <input type="password" name="old_password" required class="input" placeholder="Masukkan password lama kamu">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Kata Sandi Baru</label>
+          <input type="password" name="new_password" required class="input" placeholder="Minimal 8 karakter">
+        </div>
+
+        <div>
+          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Konfirmasi Kata Sandi Baru</label>
+          <input type="password" name="confirm_password" required class="input" placeholder="Ulangi password baru kamu">
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" onclick="togglePasswordModal(false)" class="btn btn--outline">Batal</button>
+        <button type="submit" class="btn btn--primary">Perbarui Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
+  // fungsi untuk buka tutup modal edit profil
   function toggleEditModal(show) {
     const modal = document.getElementById('editModal');
+    if (show) {
+      modal.classList.add('is-open');
+    } else {
+      modal.classList.remove('is-open');
+    }
+  }
+
+  // fungsi untuk buka tutup modal ganti password
+  function togglePasswordModal(show) {
+    const modal = document.getElementById('passwordModal');
     if (show) {
       modal.classList.add('is-open');
     } else {

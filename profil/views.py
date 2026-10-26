@@ -1,10 +1,10 @@
 import re
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import UserProfile
+from .models import UserProfile, Transaksi
 
 # fungsi untuk memproses login pengguna
 def login_view(request):
@@ -105,3 +105,163 @@ def profile_view(request):
         return redirect('profile')
 
     return render(request, 'profile.html', {'profile': profile})
+
+# fungsi untuk memproses perubahan kata sandi pengguna
+@login_required(login_url='/login/')
+def change_password_view(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old_password', '')
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        # validasi: cek apakah kata sandi lama sudah benar
+        if not request.user.check_password(old_password):
+            messages.error(request, 'kata sandi lama kamu salah!')
+            return redirect('profile')
+
+        # validasi: cek apakah konfirmasi kata sandi baru cocok
+        if new_password != confirm_password:
+            messages.error(request, 'konfirmasi kata sandi baru tidak cocok!')
+            return redirect('profile')
+
+        # validasi: pastikan panjang kata sandi baru minimal 8 karakter
+        if len(new_password) < 8:
+            messages.error(request, 'kata sandi baru minimal 8 karakter!')
+            return redirect('profile')
+
+        # simpan kata sandi baru ke database django
+        request.user.set_password(new_password)
+        request.user.save()
+
+        # perbarui sesi login agar pengguna tidak otomatis keluar (logout)
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'kata sandi berhasil diperbarui!')
+        return redirect('profile')
+
+    return redirect('profile')
+
+# fungsi untuk mereset kata sandi jika pengguna lupa kata sandi
+def reset_password_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        # cari akun pengguna berdasarkan username dan email
+        user = User.objects.filter(username=username, email__iexact=email).first()
+        if not user:
+            messages.error(request, 'username dan email tidak cocok dengan data akun manapun!')
+            return redirect('login')
+
+        # validasi: pastikan konfirmasi kata sandi cocok
+        if new_password != confirm_password:
+            messages.error(request, 'konfirmasi kata sandi baru tidak cocok!')
+            return redirect('login')
+
+        # validasi: pastikan panjang kata sandi minimal 8 karakter
+        if len(new_password) < 8:
+            messages.error(request, 'kata sandi baru minimal 8 karakter!')
+            return redirect('login')
+
+        # perbarui kata sandi pengguna di database
+        user.set_password(new_password)
+        user.save()
+
+        messages.success(request, 'kata sandi berhasil direset! silakan masuk dengan kata sandi baru.')
+        return redirect('login')
+
+    return redirect('login')
+
+# fungsi untuk menampilkan halaman manajemen transaksi barter
+@login_required(login_url='/login/')
+def manajemen_transaksi_view(request):
+    permintaan_masuk = Transaksi.objects.filter(pemilik=request.user).order_by('-created_at')
+    pengajuan_saya = Transaksi.objects.filter(pemohon=request.user).order_by('-created_at')
+
+    # hitung data metrik untuk kartu ringkasan kpi dashboard
+    total_transaksi = permintaan_masuk.count() + pengajuan_saya.count()
+    menunggu_respon = permintaan_masuk.filter(status='diajukan').count() + pengajuan_saya.filter(status='diajukan').count()
+    siap_barter = permintaan_masuk.filter(status='diterima').count() + pengajuan_saya.filter(status='diterima').count()
+    selesai_barter = permintaan_masuk.filter(status='selesai').count() + pengajuan_saya.filter(status='selesai').count()
+
+    context = {
+        'permintaan_masuk': permintaan_masuk,
+        'pengajuan_saya': pengajuan_saya,
+        'total_transaksi': total_transaksi,
+        'menunggu_respon': menunggu_respon,
+        'siap_barter': siap_barter,
+        'selesai_barter': selesai_barter,
+    }
+    return render(request, 'transaksi.html', context)
+
+# fungsi untuk mengajukan minat atau tawaran barter pada suatu barang
+@login_required(login_url='/login/')
+def ajukan_transaksi_view(request, barang_id):
+    from barang.models import Barang
+    barang = get_object_or_404(Barang, pk=barang_id)
+
+    # cari pemilik barang secara fleksibel
+    pemilik_barang = getattr(barang, 'penjual', getattr(barang, 'pemilik', getattr(barang, 'user', None)))
+
+    # validasi: pemilik dilarang mengajukan transaksi ke barang miliknya sendiri
+    if pemilik_barang == request.user:
+        messages.error(request, 'kamu tidak bisa mengajukan barter ke barang milikmu sendiri!')
+        return redirect('manajemen_transaksi')
+
+    # validasi: cegah pengajuan ganda jika transaksi sebelumnya masih berjalan
+    transaksi_berjalan = Transaksi.objects.filter(barang=barang, pemohon=request.user, status__in=['diajukan', 'diterima']).exists()
+    if transaksi_berjalan:
+        messages.error(request, 'kamu sudah memiliki transaksi aktif untuk barang ini!')
+        return redirect('manajemen_transaksi')
+
+    if request.method == 'POST':
+        pesan = request.POST.get('pesan', '').strip()
+
+        Transaksi.objects.create(
+            barang=barang,
+            pemohon=request.user,
+            pemilik=pemilik_barang,
+            pesan=pesan,
+            status='diajukan'
+        )
+
+        messages.success(request, 'pengajuan barter berhasil dikirim! silakan tunggu respon pemilik barang.')
+        return redirect('manajemen_transaksi')
+
+    return render(request, 'ajukan_transaksi.html', {'barang': barang, 'pemilik': pemilik_barang})
+
+# fungsi untuk mengubah status transaksi (terima, tolak, batalkan, selesai)
+@login_required(login_url='/login/')
+def ubah_status_transaksi_view(request, transaksi_id, aksi):
+    transaksi = get_object_or_404(Transaksi, pk=transaksi_id)
+
+    # aksi terima tawaran: hanya bisa dilakukan oleh pemilik barang
+    if aksi == 'terima' and transaksi.pemilik == request.user:
+        transaksi.status = 'diterima'
+        transaksi.save()
+        messages.success(request, 'tawaran barter berhasil kamu terima! hubungi pemohon via whatsapp untuk serah terima barang.')
+
+    # aksi tolak tawaran: hanya bisa dilakukan oleh pemilik barang
+    elif aksi == 'tolak' and transaksi.pemilik == request.user:
+        transaksi.status = 'ditolak'
+        transaksi.save()
+        messages.success(request, 'tawaran barter telah ditolak.')
+
+    # aksi batalkan pengajuan: hanya bisa dilakukan oleh pemohon
+    elif aksi == 'batalkan' and transaksi.pemohon == request.user:
+        transaksi.status = 'dibatalkan'
+        transaksi.save()
+        messages.success(request, 'pengajuan barter berhasil kamu batalkan.')
+
+    # aksi tandai selesai: bisa dilakukan jika transaksi sudah diterima
+    elif aksi == 'selesai' and (transaksi.pemilik == request.user or transaksi.pemohon == request.user):
+        transaksi.status = 'selesai'
+        transaksi.save()
+        messages.success(request, 'transaksi barter telah selesai! terima kasih sudah bertukar barang di ecoswap.')
+
+    else:
+        messages.error(request, 'kamu tidak memiliki izin untuk mengubah transaksi ini!')
+
+    return redirect('manajemen_transaksi')

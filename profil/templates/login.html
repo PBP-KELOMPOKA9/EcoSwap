@@ -16,10 +16,11 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #001F3F;
         }
-        h1, h2 {
+        h1, h2, h3 {
             font-family: 'Montserrat', sans-serif;
         }
-       
+        /* hilangkan warna biru bawaan autofill chrome agar tetap putih */
+        input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
         input:-webkit-autofill:active {
@@ -42,8 +43,8 @@
 </head>
 <body class="flex h-screen w-full font-sans bg-[#F5F6EC] overflow-hidden">
 
-    <!-- area kiri: form login dengan latar putih -->
-    <div class="w-full lg:w-1/2 bg-[#F5F6EC] flex flex-col justify-between p-10 lg:p-14 h-full">
+    <!-- area kiri: form login dengan latar cream -->
+    <div class="w-full lg:w-1/2 bg-[#F5F6EC] flex flex-col justify-between p-10 lg:p-14 h-full overflow-y-auto">
         
         <!-- logo ecoswap di pojok kiri atas -->
         <div>
@@ -62,7 +63,7 @@
                 </p>
             </div>
 
-            <!-- kotak pesan peringatan jika salah password atau sukses daftar -->
+            <!-- kotak pesan peringatan jika salah password atau sukses daftar/reset -->
             {% if messages %}
                 <div class="mb-5 space-y-2">
                     {% for message in messages %}
@@ -106,7 +107,7 @@
                         <input type="checkbox" name="remember" class="w-5 h-5 rounded border-[#CBD3BC] text-[#00804C] focus:ring-[#00804C] mr-2.5">
                         Remember me
                     </label>
-                    <a href="#" class="font-bold text-[#001F3F] underline hover:text-[#00804C]">Forgot Password?</a>
+                    <button type="button" onclick="openForgotModal()" class="font-bold text-[#001F3F] underline hover:text-[#00804C] cursor-pointer">Forgot Password?</button>
                 </div>
 
                 <!-- tombol submit sign in -->
@@ -196,7 +197,46 @@
 
     </div>
 
-    <!-- script interaktif login: toggle password, slider, dan loading tombol -->
+    <!-- modal pop-up reset password jika pengguna lupa sandi -->
+    <div id="forgotModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl border border-[#CBD3BC] relative">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-2xl font-black text-[#001F3F]">Reset Password</h3>
+                <button type="button" onclick="closeForgotModal()" class="text-[#8A94A1] hover:text-[#001F3F] text-2xl font-bold cursor-pointer">&times;</button>
+            </div>
+            <p class="text-sm text-[#5F6B7A] mb-5">Masukkan username dan email terdaftar untuk mengatur kata sandi baru akunmu.</p>
+            
+            <form method="POST" action="{% url 'reset_password' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Username Akun</label>
+                    <input type="text" name="username" required placeholder="contoh: nayput" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Email Terdaftar</label>
+                    <input type="email" name="email" required placeholder="email@kampus.ac.id" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Kata Sandi Baru</label>
+                    <input type="password" name="new_password" required minlength="8" placeholder="minimal 8 karakter" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Konfirmasi Kata Sandi Baru</label>
+                    <input type="password" name="confirm_password" required minlength="8" placeholder="ulangi kata sandi baru" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeForgotModal()" class="flex-1 py-3 border border-[#CBD3BC] text-[#5F6B7A] hover:bg-gray-50 rounded-xl font-bold text-sm cursor-pointer transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-[#00804C] hover:bg-[#006B3F] text-white rounded-xl font-bold text-sm shadow-md transition cursor-pointer">
+                        Simpan Sandi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- script interaktif login: toggle password, slider, modal, dan loading tombol -->
     <script>
         // fungsi untuk intip / sembunyikan kata sandi
         function togglePasswordVisibility(inputId, iconId) {
@@ -209,6 +249,15 @@
                 input.type = 'password';
                 icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
             }
+        }
+
+        // fungsi kontrol modal lupa kata sandi
+        function openForgotModal() {
+            document.getElementById('forgotModal').classList.remove('hidden');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.add('hidden');
         }
 
         // fungsi kontrol slider carousel
