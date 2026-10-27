@@ -43,7 +43,7 @@ class Barang(models.Model):
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.TERSEDIA
     )
-    lokasi = models.CharField(max_length=100, blank=True)
+    lokasi = models.ForeignKey('lokasi.Lokasi', on_delete=models.SET_NULL, null=True, blank=True)
     jumlah_dilihat = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

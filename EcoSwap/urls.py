@@ -42,6 +42,7 @@ urlpatterns = [
     path('transaksi/status/<int:transaksi_id>/<str:aksi>/', ubah_status_transaksi_view, name='ubah_status_transaksi'),
 
     path('ulasan/', include('ulasan.urls')),
+    path('lokasi/', include('lokasi.urls')),
 ]
 
 if settings.DEBUG:

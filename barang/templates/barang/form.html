@@ -123,10 +123,96 @@
       {% for error in form.deskripsi.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
     </div>
 
+    {# ---------- Google Maps Picker ---------- #}
+    <div class="field">
+      <label class="field__label">Lokasi Temu / COD</label>
+      
+      <!-- Input Pencarian Google Places -->
+      <input type="text" id="map-search" class="input" placeholder="🔍 Cari area kampus, stasiun, atau nama kos (cth: Kutek, Margonda)..." autocomplete="off" style="margin-bottom: 10px;">
+      
+      <!-- Kontainer Peta -->
+      <div id="map-picker" style="height: 280px; width: 100%; border-radius: 14px; border: 1.5px solid var(--line); background: #eee;"></div>
+      
+      <!-- Status Lokasi Terpilih -->
+      <div id="location-selected-badge" style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        <span id="location-text">Geser pin di peta atau cari tempat di atas</span>
+      </div>
+      <!-- Hidden Input yang dikirim ke Backend -->
+      <input type="hidden" name="nama_tempat" id="id_nama_tempat" value="{% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% endif %}">
+      <input type="hidden" name="alamat_lengkap" id="id_alamat_lengkap" value="{% if barang.lokasi %}{{ barang.lokasi.alamat_lengkap }}{% endif %}">
+      <input type="hidden" name="latitude" id="id_latitude" value="{% if barang.lokasi %}{{ barang.lokasi.latitude }}{% endif %}">
+      <input type="hidden" name="longitude" id="id_longitude" value="{% if barang.lokasi %}{{ barang.lokasi.longitude }}{% endif %}">
+    </div>
+    <!-- Script Google Maps Picker -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&libraries=places&callback=initMapPicker" async defer></script>
+    <script>
+      let map, marker, geocoder;
+      function initMapPicker() {
+        // Default titik pusat: Kampus UI Depok
+        const defaultLat = parseFloat("{{ barang.lokasi.latitude|default:'-6.3627' }}");
+        const defaultLng = parseFloat("{{ barang.lokasi.longitude|default:'106.8271' }}");
+        const initialPos = { lat: defaultLat, lng: defaultLng };
+        map = new google.maps.Map(document.getElementById("map-picker"), {
+          center: initialPos,
+          zoom: 14,
+          mapTypeControl: false,
+          streetViewControl: false,
+        });
+        marker = new google.maps.Marker({
+          position: initialPos,
+          map: map,
+          draggable: true,
+          animation: google.maps.Animation.DROP,
+        });
+        geocoder = new google.maps.Geocoder();
+        // Autocomplete Search Box
+        const input = document.getElementById("map-search");
+        const autocomplete = new google.maps.places.Autocomplete(input);
+        autocomplete.bindTo("bounds", map);
+        autocomplete.addListener("place_changed", () => {
+          const place = autocomplete.getPlace();
+          if (!place.geometry || !place.geometry.location) return;
+          map.setCenter(place.geometry.location);
+          map.setZoom(16);
+          marker.setPosition(place.geometry.location);
+          setCoordinates(place.geometry.location.lat(), place.geometry.location.lng(), place.name || place.formatted_address, place.formatted_address);
+        });
+        // Event saat klik di peta
+        map.addListener("click", (e) => {
+          marker.setPosition(e.latLng);
+          updateFromLatLng(e.latLng);
+        });
+        // Event saat marker digeser (drag)
+        marker.addListener("dragend", (e) => {
+          updateFromLatLng(e.latLng);
+        });
+      }
+      function updateFromLatLng(latLng) {
+        geocoder.geocode({ location: latLng }, (results, status) => {
+          if (status === "OK" && results[0]) {
+            const formatted = results[0].formatted_address;
+            const shortName = results[0].address_components[0]?.short_name || "Titik Temu Terpilih";
+            setCoordinates(latLng.lat(), latLng.lng(), shortName, formatted);
+          } else {
+            setCoordinates(latLng.lat(), latLng.lng(), "Lokasi Terpilih", "");
+          }
+        });
+      }
+      function setCoordinates(lat, lng, name, address) {
+        document.getElementById("id_latitude").value = lat;
+        document.getElementById("id_longitude").value = lng;
+        document.getElementById("id_nama_tempat").value = name;
+        document.getElementById("id_alamat_lengkap").value = address;
+        document.getElementById("location-text").innerText = name + (address ? " (" + address + ")" : "");
+      }
+    </script>
+
     <div class="form-actions">
       <a href="{% if mode == 'edit' %}{{ barang.get_absolute_url }}{% else %}{% url 'barang:barang_saya' %}{% endif %}" class="btn btn--outline btn--lg">Batal</a>
       <button type="submit" class="btn btn--primary btn--lg" data-submit>{% if mode == 'edit' %}Simpan Perubahan{% else %}Simpan Barang{% endif %}</button>
     </div>
+
   </form>
 </div>
 {% endblock %}

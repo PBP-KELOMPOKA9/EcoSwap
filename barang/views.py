@@ -1,3 +1,5 @@
+from EcoSwap import settings
+from lokasi.models import Lokasi
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -284,3 +286,37 @@ def toggle_wishlist(request, pk):
     else:
         messages.success(request, f'"{barang.judul}" dihapus dari wishlist.')
     return _redirect_aman(request, 'barang:katalog')
+
+@login_required
+def tambah(request):
+    if request.method == 'POST':
+        form = BarangForm(request.POST, request.FILES)
+        if form.is_valid():
+            barang = form.save(commit=False)
+            barang.pemilik = request.user
+            
+            # Simpan Lokasi dari Google Maps
+            nama_tempat = request.POST.get('nama_tempat', '').strip()
+            lat = request.POST.get('latitude')
+            lng = request.POST.get('longitude')
+            alamat = request.POST.get('alamat_lengkap', '').strip()
+            if nama_tempat and lat and lng:
+                lokasi_obj, _ = Lokasi.objects.get_or_create(
+                    nama_tempat=nama_tempat,
+                    latitude=float(lat),
+                    longitude=float(lng),
+                    defaults={'alamat_lengkap': alamat}
+                )
+                barang.lokasi = lokasi_obj
+            barang.save()
+            form.simpan_foto(barang)
+            messages.success(request, f'"{barang.judul}" berhasil ditambahkan ke katalog.')
+            return redirect(barang)
+    else:
+        form = BarangForm()
+    return render(request, 'barang/form.html', {
+        'form': form,
+        'mode': 'tambah',
+        'nav_aktif': 'tambah',
+        'api_key': settings.GOOGLE_MAPS_API_KEY, # <--- kirim api_key
+    })
