@@ -127,17 +127,23 @@
     <div class="field">
       <label class="field__label">Lokasi Temu / COD</label>
       
-      <!-- Input Pencarian Google Places -->
-      <input type="text" id="map-search" class="input" placeholder="🔍 Cari area kampus, stasiun, atau nama kos (cth: Kutek, Margonda)..." autocomplete="off" style="margin-bottom: 10px;">
+      <!-- Input Pencarian Google Places (tambahkan value) -->
+      <input type="text" id="map-search" class="input" 
+             value="{% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% endif %}" 
+             placeholder="🔍 Cari area kampus, stasiun, atau nama kos (cth: Kutek, Margonda)..." 
+             autocomplete="off" style="margin-bottom: 10px;">
       
       <!-- Kontainer Peta -->
       <div id="map-picker" style="height: 280px; width: 100%; border-radius: 14px; border: 1.5px solid var(--line); background: #eee;"></div>
       
-      <!-- Status Lokasi Terpilih -->
+      <!-- Status Lokasi Terpilih (tampilkan lokasi lama jika ada) -->
       <div id="location-selected-badge" style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 6px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
-        <span id="location-text">Geser pin di peta atau cari tempat di atas</span>
+        <span id="location-text">
+          {% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% else %}Geser pin di peta atau cari tempat di atas{% endif %}
+        </span>
       </div>
+      
       <!-- Hidden Input yang dikirim ke Backend -->
       <input type="hidden" name="nama_tempat" id="id_nama_tempat" value="{% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% endif %}">
       <input type="hidden" name="alamat_lengkap" id="id_alamat_lengkap" value="{% if barang.lokasi %}{{ barang.lokasi.alamat_lengkap }}{% endif %}">
@@ -206,6 +212,19 @@
         document.getElementById("id_alamat_lengkap").value = address;
         document.getElementById("location-text").innerText = name + (address ? " (" + address + ")" : "");
       }
+
+      // Fallback: jika ketik manual di input, langsung isi nama_tempat
+      document.getElementById("map-search").addEventListener("input", function(e) {
+        const val = e.target.value.trim();
+        document.getElementById("id_nama_tempat").value = val;
+        document.getElementById("location-text").innerText = val || "Geser pin di peta atau cari tempat di atas";
+        
+        // Beri default koordinat Depok jika belum terisi dari peta
+        if (!document.getElementById("id_latitude").value) {
+          document.getElementById("id_latitude").value = "-6.3685";
+          document.getElementById("id_longitude").value = "106.8245";
+        }
+      });
     </script>
 
     <div class="form-actions">
