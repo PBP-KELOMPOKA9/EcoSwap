@@ -47,7 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'profil',
     'barang',
+
     'ulasan',
 ]
 
@@ -154,7 +156,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Halaman login sementara pakai login admin Django.
 # TODO (Modul 2): ganti ke URL login milik modul Profil kalau sudah ada.
-LOGIN_URL = 'admin:login'
+LOGIN_URL = 'login'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

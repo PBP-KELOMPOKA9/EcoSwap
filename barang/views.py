@@ -11,6 +11,13 @@ from django.views.decorators.http import require_POST
 from .forms import BarangForm, StatusForm
 from .models import Barang, Wishlist
 
+def home(request):
+    total_tersedia = Barang.objects.filter(status=Barang.Status.TERSEDIA).count()
+    return render(request, 'home.html', {
+        'total_tersedia': total_tersedia,
+        'nav_aktif': 'beranda',
+    })
+
 PER_HALAMAN = 12
 PILIHAN_URUT = {
     'terbaru': ('Terbaru', ['-created_at']),
