@@ -59,7 +59,8 @@ class BarangForm(forms.ModelForm):
             elif not self.instance.pk:
                 self.initial.setdefault('tipe', Barang.Tipe.JUAL)
                 self.initial['harga'] = ''
-
+        self.fields['metode_pengambilan'].required = False
+        
     @property
     def foto_lama(self):
         if self.instance.pk:

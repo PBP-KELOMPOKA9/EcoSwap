@@ -122,23 +122,25 @@
       </div>
       {% for error in form.deskripsi.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
     </div>
-    {# ---------- Pilihan Metode Pengambilan ---------- #}
+
+    {# ---------- Pilihan Metode Pengambilan (Checkbox) ---------- #}
     <div class="field">
       <label class="field__label">Metode Pengambilan Barang <span class="req">*</span></label>
-      <div style="display: flex; gap: 20px; margin-top: 8px;">
+      <div style="display: flex; gap: 24px; margin-top: 8px;">
         <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
-          <input type="radio" name="metode_pengambilan" value="cod" 
-                 {% if not barang.metode_pengambilan or barang.metode_pengambilan == 'cod' %}checked{% endif %} 
-                 onchange="toggleMetodePengambilan(this.value)">
-          Ketemuan Langsung (COD)
+          <input type="checkbox" name="metode_cod" id="check-cod" value="1"
+                 {% if not barang.pk or barang.bisa_cod %}checked{% endif %}
+                 onchange="toggleMetodeCheckbox()">
+          🤝 Ketemuan Langsung (COD)
         </label>
         <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
-          <input type="radio" name="metode_pengambilan" value="kurir" 
-                 {% if barang.metode_pengambilan == 'kurir' %}checked{% endif %} 
-                 onchange="toggleMetodePengambilan(this.value)">
-          Kirim via Kurir
+          <input type="checkbox" name="metode_kurir" id="check-kurir" value="1"
+                 {% if barang.bisa_kurir %}checked{% endif %}
+                 onchange="toggleMetodeCheckbox()">
+          📦 Kirim via Kurir
         </label>
       </div>
+      <p id="metode-error" class="field__error" style="display: none;">Pilih minimal satu metode pengambilan.</p>
     </div>
     {# ---------- Leaflet / OpenStreetMap Picker ---------- #}
     <div id="section-lokasi-cod" class="field" style="{% if barang.metode_pengambilan == 'kurir' %}display: none;{% endif %}">
@@ -182,14 +184,24 @@
 <script>
   let map, marker;
   let searchTimeout = null;
-  function toggleMetodePengambilan(metode) {
+  function toggleMetodeCheckbox() {
+    const isCod = document.getElementById('check-cod').checked;
+    const isKurir = document.getElementById('check-kurir').checked;
     const sectionMap = document.getElementById('section-lokasi-cod');
+    const errorMsg = document.getElementById('metode-error');
+    // Validasi minimal 1 terpilih
+    if (!isCod && !isKurir) {
+      if (errorMsg) errorMsg.style.display = 'block';
+    } else {
+      if (errorMsg) errorMsg.style.display = 'none';
+    }
+    // Tampilkan / sembunyikan peta jika COD dicentang
     if (sectionMap) {
-      if (metode === 'kurir') {
-        sectionMap.style.display = 'none';
-      } else {
+      if (isCod) {
         sectionMap.style.display = 'block';
-        setTimeout(() => { map.invalidateSize(); }, 200); // refresh layout peta
+        if (map) setTimeout(() => { map.invalidateSize(); }, 200);
+      } else {
+        sectionMap.style.display = 'none';
       }
     }
   }

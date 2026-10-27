@@ -1519,9 +1519,7 @@ fieldset.field legend { padding: 0; }
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  .langkah-connector {
-    display: none;
-  }
+
   .langkah-title {
     font-size: 26px;
   }

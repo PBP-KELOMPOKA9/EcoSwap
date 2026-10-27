@@ -155,17 +155,30 @@ def detail(request, pk):
 
 @login_required
 def tambah(request):
+    
     if request.method == 'POST':
         form = BarangForm(request.POST, request.FILES)
         if form.is_valid():
             barang = form.save(commit=False)
             barang.pemilik = request.user
             
+            # Ambil centang metode pengambilan
+            is_cod = 'metode_cod' in request.POST
+            is_kurir = 'metode_kurir' in request.POST
+            if is_cod and is_kurir:
+                barang.metode_pengambilan = Barang.MetodePengambilan.KEDUANYA
+            elif is_kurir:
+                barang.metode_pengambilan = Barang.MetodePengambilan.KURIR
+            else:
+                barang.metode_pengambilan = Barang.MetodePengambilan.COD
             nama_tempat = request.POST.get('nama_tempat', '').strip()
             lat = request.POST.get('latitude')
             lng = request.POST.get('longitude')
             alamat = request.POST.get('alamat_lengkap', '').strip()
-            if nama_tempat and lat and lng:
+            # Jika tidak dicentang COD, kosongkan lokasi
+            if not is_cod:
+                barang.lokasi = None
+            elif nama_tempat and lat and lng:
                 lokasi_obj, _ = Lokasi.objects.get_or_create(
                     nama_tempat=nama_tempat,
                     latitude=float(lat),
@@ -174,6 +187,7 @@ def tambah(request):
                 )
                 barang.lokasi = lokasi_obj
             barang.save()
+
             form.simpan_foto(barang)
             messages.success(request, f'"{barang.judul}" berhasil ditambahkan ke katalog.')
             return redirect(barang)
@@ -195,11 +209,25 @@ def edit(request, pk):
         if form.is_valid():
             barang = form.save(commit=False)
             
+            # Ambil centang metode pengambilan
+            is_cod = 'metode_cod' in request.POST
+            is_kurir = 'metode_kurir' in request.POST
+            if is_cod and is_kurir:
+                barang.metode_pengambilan = Barang.MetodePengambilan.KEDUANYA
+            elif is_kurir:
+                barang.metode_pengambilan = Barang.MetodePengambilan.KURIR
+            else:
+                barang.metode_pengambilan = Barang.MetodePengambilan.COD
+
             nama_tempat = request.POST.get('nama_tempat', '').strip()
             lat = request.POST.get('latitude')
             lng = request.POST.get('longitude')
             alamat = request.POST.get('alamat_lengkap', '').strip()
-            if nama_tempat:
+
+            # Jika tidak dicentang COD, kosongkan lokasi
+            if not is_cod:
+                barang.lokasi = None
+            elif nama_tempat:
                 try:
                     lat_val = float(lat) if lat else -6.3685
                     lng_val = float(lng) if lng else 106.8245
@@ -213,9 +241,8 @@ def edit(request, pk):
                     defaults={'alamat_lengkap': alamat}
                 )
                 barang.lokasi = lokasi_obj
-
-                
             barang.save()
+            
             messages.success(request, 'Perubahan berhasil disimpan.')
             return redirect(barang)
     else:

@@ -32,6 +32,7 @@ class Barang(models.Model):
     class MetodePengambilan(models.TextChoices):
         COD = 'cod', 'Ketemuan Langsung'
         KURIR = 'kurir', 'Kirim via Kurir'
+        KEDUANYA = 'keduanya', 'COD & Kirim Kurir'
 
     pemilik = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -77,6 +78,12 @@ class Barang(models.Model):
         fotos = list(self.foto.all())
         return fotos[0] if fotos else None
 
+    @property
+    def bisa_cod(self):
+        return self.metode_pengambilan in ['cod', 'keduanya']
+    @property
+    def bisa_kurir(self):
+        return self.metode_pengambilan in ['kurir', 'keduanya']
 
 class FotoBarang(models.Model):
     barang = models.ForeignKey(Barang, on_delete=models.CASCADE, related_name='foto')
