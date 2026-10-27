@@ -4,6 +4,7 @@
 {% block title %}Landing{% endblock %}
 
 {% block content %}
+  <!-- ================= SECTION 1: HERO ================= -->
   <section class="hero-wrap">
     <div class="hero-content">
       <p class="eyebrow">Dari Sekitar, Untuk Sekitar</p>
@@ -14,22 +15,156 @@
       <p class="hero-sub">
         Temukan barang layak pakai dari teman kampus dan penghuni kos di sekitarmu. Lebih hemat, lebih dekat, lebih ramah bumi.
       </p>
-      <form class="search-bar" action="{% url 'barang:katalog' %}" method="get">
+      <form class="search-bar" action="{% url 'barang:katalog' %}" method="get"> <!-- Langsung arahin ke katalog abis search-->
         <input type="hidden" name="urut" value="terbaru">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/> <!-- Icon Pencarian-->
         </svg>
         <input type="search" name="q" placeholder="Cari buku, rak, pakaian, atau barang lainnya">
         <button type="submit" class="btn-search">Cari Barang</button>
       </form>
       <div class="hero-stats">
-        <span><strong>{{ total_tersedia }}+</strong> barang tersedia</span>
+        <span><strong>{{ total_tersedia }}+</strong> barang tersedia</span> <!-- Ambil Total dari View Home-->
         <div class="sep"></div>
         <span>Gratis untuk mulai berbagi</span>
       </div>
     </div>
     <div class = "hero-right-content">
-      <img src="{% static 'img/hero-landing-page.png' %}" alt="" width="520" height="420">
+      <img src="{% static 'img/hero-landing-page.png' %}" alt="Hero Landing Page" width="520" height="420">
+    </div>
+  </section>
+
+  <!-- ================= SECTION 2: PREVIEW ================= -->
+  <section class="jelajahi-wrap">
+    <!-- Header: Judul di kiri, Link ke katalog di kanan -->
+    <div class="jelajahi-header">
+      <div class="jelajahi-title-wrap">
+        <p class="eyebrow">JELAJAHI SEKITAR KAMU</p>
+        <h2 class="jelajahi-title">Temukan barang yang kamu butuhkan</h2>
+      </div>
+      <a href="{% url 'barang:katalog' %}" class="jelajahi-link-all">
+        Lihat semua barang
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+    <!-- Filter Pills / Kategori -->
+    <div class="jelajahi-categories">
+      <a href="{% url 'barang:home' %}" class="jelajahi-pill {% if not kategori_filter %}is-active{% endif %}">
+        Semua Barang
+      </a>
+      {% for val, label in kategori_choices %}
+      <a href="{% url 'barang:home' %}?kategori={{ val }}" class="jelajahi-pill {% if kategori_filter == val %}is-active{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </div>
+    <!-- Grid Kartu Barang (4 kolom x 2 baris) -->
+    {% if barang_list %}
+    <div class="grid-barang">
+      {% for barang in barang_list %}
+        {% include "barang/partials/card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="jelajahi-empty">
+      <p>Belum ada barang tersedia untuk kategori ini.</p>
+    </div>
+    {% endif %}
+    <!-- Tombol Tampilkan Lebih Banyak -->
+    <div class="jelajahi-more">
+      <a href="{% url 'barang:katalog' %}{% if kategori_filter %}?kategori={{ kategori_filter }}{% endif %}" class="btn-jelajahi-more">
+        <span>Tampilkan lebih banyak</span>
+      </a>
+    </div>
+  </section>
+  
+  <!-- ================= SECTION 3: LANGKAH - LANGKAH ================= -->
+  <section class="langkah-section">
+    <div class="langkah-container">
+      <!-- Header Section -->
+      <div class="langkah-header">
+        <span class="langkah-badge">MUDAH DAN BERDAMPAK</span>
+        <h2 class="langkah-title">Tiga langkah untuk berbagi</h2>
+        <p class="langkah-desc">Berikan kesempatan kedua untuk barangmu tanpa proses yang rumit.</p>
+      </div>
+      <!-- Grid 3 Langkah -->
+      <div class="langkah-grid">
+        <!-- Langkah 01 -->
+        <div class="langkah-card">
+          <span class="langkah-num">01</span>
+          <div class="langkah-icon icon-lime">
+            <!-- Camera / Lens Icon -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2B4710" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/>
+              <circle cx="12" cy="12" r="7"/>
+            </svg>
+          </div>
+          <h3 class="langkah-card-title">Foto barangmu</h3>
+          <p class="langkah-card-desc">Ambil foto yang jelas dan ceritakan kondisi barang dengan jujur.</p>
+        </div>
+        <!-- Langkah 02 -->
+        <div class="langkah-card">
+          <span class="langkah-num">02</span>
+          <div class="langkah-icon icon-green">
+            <!-- Arrow Up-Right Icon -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="7" y1="17" x2="17" y2="7"/>
+              <polyline points="7 7 17 7 17 17"/>
+            </svg>
+          </div>
+          <h3 class="langkah-card-title">Pilih donasi atau jual</h3>
+          <p class="langkah-card-desc">Berikan gratis atau tentukan harga ramah kantong untuk komunitas.</p>
+        </div>
+        <!-- Langkah 03 -->
+        <div class="langkah-card">
+          <span class="langkah-num">03</span>
+          <div class="langkah-icon icon-navy">
+            <!-- House / Meetup Icon -->
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <h3 class="langkah-card-title">Janjian di sekitar</h3>
+          <p class="langkah-card-desc">Atur waktu dan lokasi temu yang aman di area kampus atau kos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- ================= SECTION 4: CTA BAGIKAN ================= -->
+  <section class="cta-banner-section">
+    <div class="cta-banner-container">
+      <div class="cta-banner-card">
+        <!-- Kolom Kiri: Teks & Tombol -->
+        <div class="cta-banner-content">
+          <span class="cta-banner-eyebrow">PUNYA BARANG TAK TERPAKAI?</span>
+          <h2 class="cta-banner-title">Jangan disimpan, bagikan.</h2>
+          <p class="cta-banner-desc">
+            Barang sederhana darimu mungkin sedang sangat dibutuhkan orang lain. Mulai berbagi dan buat ruang baru hari ini.
+          </p>
+          <a href="{% url 'barang:tambah' %}" class="btn-cta-pasang">
+            <span>Tambah Barang Sekarang</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+        <!-- Kolom Kanan: Card Dampak Komunitas (Glassmorphism) -->
+        <div class="cta-stat-card">
+          <div class="cta-stat-label">DAMPAK KOMUNITAS BULAN INI</div>
+          <div class="cta-stat-number">50+</div>
+          <div class="cta-stat-sub">barang mendapat rumah baru</div>
+          <!-- Progress Bar -->
+          <div class="cta-stat-progress">
+            <div class="cta-stat-bar" style="width: 50%;"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 {% endblock %}
