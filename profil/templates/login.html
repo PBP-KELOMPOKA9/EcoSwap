@@ -1,0 +1,314 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - EcoSwap</title>
+    <!-- load font montserrat dan plus jakarta sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- load tailwind css via cdn -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #001F3F;
+        }
+        h1, h2, h3 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px white inset !important;
+            -webkit-text-fill-color: #001F3F !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* animasi daun melayang halus */
+        @keyframes floatLeaf1 {
+            0%, 100% { transform: translateY(0px) rotate(-45deg); }
+            50% { transform: translateY(-14px) rotate(-38deg); }
+        }
+        @keyframes floatLeaf2 {
+            0%, 100% { transform: translateY(0px) rotate(12deg); }
+            50% { transform: translateY(14px) rotate(22deg); }
+        }
+        .anim-leaf-1 { animation: floatLeaf1 6s ease-in-out infinite; }
+        .anim-leaf-2 { animation: floatLeaf2 7.5s ease-in-out infinite; }
+
+        /* gradasi multi-stop */
+        .hero-eco-gradient {
+            background: linear-gradient(150deg, #004D2C 0%, #006B3F 32%, #00804C 70%, #0E9F5E 100%);
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full font-sans bg-[#F5F6EC] overflow-hidden">
+
+    <!-- area kiri: form login dengan latar cream -->
+    <div class="w-full lg:w-1/2 bg-[#F5F6EC] flex flex-col justify-between p-10 lg:p-14 h-full overflow-y-auto">
+        
+        <!-- logo ecoswap di pojok kiri atas -->
+        <div>
+            <a href="/">
+                <img src="{% static 'img/logo-ecoswap.png' %}" alt="Logo EcoSwap" class="h-12 lg:h-14 w-auto object-contain">
+            </a>
+        </div>
+
+        <!-- form login diatur simetris -->
+        <div class="w-full max-w-[480px] mx-auto my-auto py-2">
+            
+            <!-- judul sign in -->
+            <div class="mb-7">
+                <h1 class="text-4xl lg:text-5xl font-black text-[#00804C] tracking-tight">Sign in</h1>
+                <p class="text-[#5F6B7A] mt-2 text-base">
+                    Don't have an account? 
+                    <a href="/register/" class="text-[#00804C] font-bold underline hover:text-[#006B3F] transition">Create now</a>
+                </p>
+            </div>
+
+            <!-- kotak pesan peringatan jika salah password atau sukses reset -->
+            {% if messages %}
+                <div class="mb-5 space-y-2">
+                    {% for message in messages %}
+                        <div class="p-3.5 rounded-2xl text-sm font-semibold {% if message.tags == 'success' %}bg-[#E2F1E5] text-[#006B3F] border border-[#BFDCC8]{% else %}bg-[#FCE9E7] text-[#C8392F] border border-[#F0B3AE]{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- formulir login pengguna -->
+            <form method="POST" id="loginForm" class="space-y-5">
+                {% csrf_token %}
+                
+                <!-- field input email atau username -->
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-2">E-mail / Username</label>
+                    <input type="text" name="username" required placeholder="username atau email kamu" 
+                           class="w-full bg-white border border-[#CBD3BC] rounded-xl px-5 py-3.5 text-base text-[#001F3F] placeholder-[#8A94A1] focus:outline-none focus:border-[#00804C] focus:ring-2 focus:ring-[#00804C]/20 transition shadow-sm">
+                </div>
+
+                <!-- field input password dan tombol intip -->
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-2">Password</label>
+                    <div class="relative">
+                        <input type="password" id="loginPassword" name="password" required placeholder="@#*%" 
+                               class="w-full bg-white border border-[#CBD3BC] rounded-xl px-5 py-3.5 pr-14 text-base text-[#001F3F] placeholder-[#8A94A1] focus:outline-none focus:border-[#00804C] focus:ring-2 focus:ring-[#00804C]/20 transition shadow-sm">
+                        <!-- ikon mata intip password aktif -->
+                        <button type="button" onclick="togglePasswordVisibility('loginPassword', 'eyeIconLogin')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-[#8A94A1] hover:text-[#001F3F] cursor-pointer" title="Lihat password">
+                            <svg id="eyeIconLogin" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- remember me dan forgot password -->
+                <div class="flex items-center justify-between text-sm pt-1">
+                    <label class="flex items-center text-[#001F3F] cursor-pointer select-none font-medium">
+                        <input type="checkbox" name="remember" class="w-4 h-4 rounded border-[#CBD3BC] text-[#00804C] focus:ring-[#00804C] mr-2">
+                        Remember me
+                    </label>
+                    <button type="button" onclick="openForgotModal()" class="font-bold text-[#001F3F] underline hover:text-[#00804C] cursor-pointer transition">
+                        Forgot Password?
+                    </button>
+                </div>
+
+                <!-- tombol submit sign in -->
+                <button type="submit" id="submitBtn" class="w-full bg-[#00804C] hover:bg-[#006B3F] text-white font-bold py-4 rounded-xl shadow-[0_6px_16px_rgba(0,128,76,0.22)] transition duration-150 text-base tracking-wide mt-3 cursor-pointer">
+                    Sign in
+                </button>
+                
+            </form>
+
+        </div>
+
+        <!-- penyeimbang layout simetris -->
+        <div class="hidden lg:block h-6"></div>
+        
+    </div>
+
+    <!-- area kanan: hero banner dengan gradasi hidup -->
+    <div class="hidden lg:flex lg:w-1/2 hero-eco-gradient relative flex-col justify-between p-10 lg:p-14 text-[#F5F6EC] h-full overflow-hidden">
+        
+        <!-- ornamen cahaya ambient gradasi halus -->
+        <div class="absolute -top-24 -left-24 w-80 h-80 bg-[#DBE64C]/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute top-1/3 -right-24 w-96 h-96 bg-[#0E9F5E]/25 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 left-1/4 w-80 h-80 bg-[#E2F1E5]/15 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <!-- siluet daun melayang halus -->
+        <svg class="absolute top-20 left-12 w-28 h-28 text-white/10 pointer-events-none anim-leaf-1" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+        </svg>
+        <svg class="absolute bottom-28 right-12 w-32 h-32 text-white/10 pointer-events-none anim-leaf-2" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z"/>
+        </svg>
+
+        <!-- tombol navigasi ke beranda di pojok kanan atas -->
+        <div class="flex justify-end z-10">
+            <a href="/" class="text-base font-semibold hover:underline opacity-90 flex items-center space-x-2 text-[#F5F6EC] transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span>Beranda</span>
+            </a>
+        </div>
+
+        <!-- pesan sambutan hello friend -->
+        <div class="flex flex-col items-center text-center max-w-lg mx-auto z-10 my-auto">
+            <!-- label kecil pemanis di atas judul -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 border border-white/20 text-[#F5F6EC] text-xs font-bold tracking-widest uppercase mb-5 backdrop-blur-sm">
+                <span> EcoSwap</span>
+            </div>
+
+            <!-- slide 1 -->
+            <div id="slide-0" class="slide-item transition-all duration-300">
+                <h2 class="text-5xl lg:text-6xl font-black mb-6 tracking-tight text-[#F5F6EC]">Hello, Friend!</h2>
+                <p class="text-[#E2F1E5] text-lg lg:text-xl leading-relaxed mb-10">
+                    Yuk tukar dan cari barang bekas berkualitas di EcoSwap untuk kurangi sampah di sekitar kita.
+                </p>
+            </div>
+
+            <!-- slide 2 -->
+            <div id="slide-1" class="slide-item hidden transition-all duration-300">
+                <h2 class="text-5xl lg:text-6xl font-black mb-6 tracking-tight text-[#F5F6EC]">Hemat Bersama!</h2>
+                <p class="text-[#E2F1E5] text-lg lg:text-xl leading-relaxed mb-10">
+                    Dapatkan perlengkapan kos, buku kuliah, dan elektronik murah dari sesama mahasiswa kampus.
+                </p>
+            </div>
+
+            <!-- slide 3 -->
+            <div id="slide-2" class="slide-item hidden transition-all duration-300">
+                <h2 class="text-5xl lg:text-6xl font-black mb-6 tracking-tight text-[#F5F6EC]">Kampus Hijau</h2>
+                <p class="text-[#E2F1E5] text-lg lg:text-xl leading-relaxed mb-10">
+                    Barang yang tak terpakai di kosmu bisa jadi awal cerita baru bagi teman seangkatanmu.
+                </p>
+            </div>
+
+            <!-- tombol ajakan sign up -->
+            <a href="/register/" class="bg-[#F5F6EC] text-[#006B3F] hover:bg-white font-bold px-12 py-3.5 rounded-full shadow-md transition duration-150 text-base tracking-widest uppercase">
+                SIGN UP
+            </a>
+        </div>
+
+        <!-- penunjuk navigasi slider di bagian bawah -->
+        <div class="flex justify-center items-center space-x-3 text-white/80 text-sm z-10 pb-2">
+            <button type="button" onclick="changeSlide(-1)" class="cursor-pointer hover:text-white px-1">&lt;</button>
+            <button type="button" onclick="goToSlide(0)" id="dot-0" class="w-3.5 h-3.5 bg-[#F5F6EC] rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="goToSlide(1)" id="dot-1" class="w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="goToSlide(2)" id="dot-2" class="w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="changeSlide(1)" class="cursor-pointer hover:text-white px-1">&gt;</button>
+        </div>
+
+    </div>
+
+    <!-- modal pop-up reset password -->
+    <div id="forgotModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl border border-[#CBD3BC] relative">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-2xl font-black text-[#001F3F]">Reset Password</h3>
+                <button type="button" onclick="closeForgotModal()" class="text-[#8A94A1] hover:text-[#001F3F] text-2xl font-bold cursor-pointer">&times;</button>
+            </div>
+            <p class="text-sm text-[#5F6B7A] mb-5">Masukkan username dan email terdaftar untuk mengatur kata sandi baru akunmu.</p>
+            
+            <form method="POST" action="{% url 'reset_password' %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Username Akun</label>
+                    <input type="text" name="username" required placeholder="contoh: nayput" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Email Terdaftar</label>
+                    <input type="email" name="email" required placeholder="email@kampus.ac.id" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Kata Sandi Baru</label>
+                    <input type="password" name="new_password" required minlength="8" placeholder="minimal 8 karakter" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-[#001F3F] mb-1.5">Konfirmasi Kata Sandi Baru</label>
+                    <input type="password" name="confirm_password" required minlength="8" placeholder="ulangi kata sandi baru" class="w-full bg-[#F5F6EC] border border-[#CBD3BC] rounded-xl px-4 py-3 text-sm text-[#001F3F] focus:outline-none focus:border-[#00804C]">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeForgotModal()" class="flex-1 py-3 border border-[#CBD3BC] text-[#5F6B7A] hover:bg-gray-50 rounded-xl font-bold text-sm cursor-pointer transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-3 bg-[#00804C] hover:bg-[#006B3F] text-white rounded-xl font-bold text-sm shadow-md transition cursor-pointer">
+                        Simpan Sandi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- script interaktif login -->
+    <script>
+        // fungsi untuk intip / sembunyikan kata sandi
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            }
+        }
+
+        // fungsi kontrol modal lupa kata sandi
+        function openForgotModal() {
+            document.getElementById('forgotModal').classList.remove('hidden');
+        }
+
+        function closeForgotModal() {
+            document.getElementById('forgotModal').classList.add('hidden');
+        }
+
+        // fungsi kontrol slider carousel
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function updateSlide() {
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById('slide-' + i);
+                const dot = document.getElementById('dot-' + i);
+                if (i === currentSlide) {
+                    slide.classList.remove('hidden');
+                    dot.className = 'w-3.5 h-3.5 bg-[#F5F6EC] rounded-full transition-all cursor-pointer';
+                } else {
+                    slide.classList.add('hidden');
+                    dot.className = 'w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer';
+                }
+            }
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateSlide();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        // otomatis geser slide tiap 5 detik
+        setInterval(() => { changeSlide(1); }, 5000);
+
+        // efek responsif tombol saat form dikirim
+        document.getElementById('loginForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.innerHTML = '<span>Memproses...</span>';
+            btn.classList.add('opacity-80', 'cursor-wait');
+        });
+    </script>
+
+</body>
+</html>

@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.db.models import Count, F, Q
+from django.db.models import Avg, Count, F, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -126,9 +126,22 @@ def detail(request, pk):
         .prefetch_related('foto')[:4]
     )
 
+    # Jembatan ke Modul 4 (Ulasan): ringkasan ulasan barang ini dan rating pemiliknya.
+    ulasan_qs = barang.daftar_ulasan.select_related('user')
+    ringkasan = ulasan_qs.aggregate(rata=Avg('rating'), total=Count('id'))
+    rating_pemilik = Barang.objects.filter(pemilik=barang.pemilik).aggregate(
+        rata=Avg('daftar_ulasan__rating'), total=Count('daftar_ulasan')
+    )
+
     context = {
         'barang': barang,
         'fotos': list(barang.foto.all()),
+        'ulasan_rata': round(ringkasan['rata'], 1) if ringkasan['rata'] else None,
+        'ulasan_bintang': round(ringkasan['rata'] or 0),
+        'ulasan_total': ringkasan['total'],
+        'ulasan_terbaru': ulasan_qs.order_by('-tanggal_dibuat')[:3],
+        'pemilik_rating': round(rating_pemilik['rata'], 1) if rating_pemilik['rata'] else None,
+        'pemilik_total_ulasan': rating_pemilik['total'],
         'is_pemilik': is_pemilik,
         'serupa': serupa,
         'wishlist_ids': _wishlist_ids(request.user),
