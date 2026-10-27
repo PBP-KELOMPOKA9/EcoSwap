@@ -29,7 +29,7 @@ def simpan_profil_otomatis(sender, instance, **kwargs):
 
 # model transaksi barter / ajukan minat antar pengguna ecoswap
 class Transaksi(models.Model):
-    # pilihan status alur transaksi sesuai linimasa modul
+    # pilihan status alur transaksi 
     STATUS_CHOICES = [
         ('diajukan', 'Diajukan'),
         ('diterima', 'Diterima'),
