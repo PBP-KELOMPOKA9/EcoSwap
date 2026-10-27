@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+    <div class="chat-layout chat-layout--list">
+        <aside class="chat-sidebar">
+            <div class="chat-sidebar__heading">
+                <h1 class="chat-sidebar__title">
+                    <a href="{% url 'barang:katalog' %}" class="chat-icon-button"
+                        aria-label="Kembali ke katalog">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l -7-7 7-7"/>
+                        </svg>
+                    </a>
+                    Messages
+                </h1>
+
+                <button class="chat-icon-button"
+                        id="notification-trigger"
+                        type="button"
+                        aria-label="Buka notifikasi"
+                        aria-expanded="false"
+                        aria-controls="notification-popup">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                            <path d="M10 21h4"/>
+                        </svg>
+
+                        {% if jumlah_belum_dibaca %}
+                            <span class="notification-dot"></span>
+                        {% endif %}
+                </button>
+            </div>
+
+            <section class="notification-popup" id="notification-popup" hidden aria-label="Notification">
+                <div class="notification-header">
+                    <h2>Notifications</h2>
+                    <button id="notification-close"
+                            type="button"
+                            aria-label="Tutup notifikasi"
+                    >×</button>
+                </div>
+
+                <div class="notification-list">
+                    {% for item in notifikasi %}
+                        <a href="{% url 'chat:detail' item.pesan.percakapan.pk %}" class="notification-item"
+                            data-notification-id="{{ item.pk }}" data-mark-read-url="{% url 'chat:tandai_dibaca' item.pk %}">
+                            <span class="notification-unread">
+                                {% if not item.sudah_dibaca %}
+                                    <span class="notification-dot"></span>
+                                {% endif %}
+                            </span>
+
+                            <span class="notification-avatar">
+                                {{ item.pesan.pengirim.username|first|upper }}
+                            </span>
+
+                            <span class="notification-content">
+                                <strong>
+                                    {{ item.pesan.pengirim.username }}:
+                                </strong>
+                                <span>
+                                    {{ item.pesan.isi|truncatechars:45 }}
+                                </span>
+                            </span>
+                        </a>
+                    {% empty %}
+                        <div class="notification-empty">
+                            <p>Belum ada notifikasi</p>
+                            <span>Notifikasi baru akan muncul di sini.</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <label class="chat-search">
+                <span class="visually-hidden">Cari percakapan</span>
+                <input type="search" id="chat-search" placeholder="Cari percakapan...">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="7"/>
+                    <path d="m20 20-4-4"/>
+                </svg>
+            </label>
+
+            <div class="chat-list" id="daftar-chat">
+                {% for item in percakapan %}
+                    {% if request.user == item.pembeli %}
+                        {% with lawan=item.penjual %}
+                            <a href="{% url 'chat:detail' item.pk %}" class="chat-list__item" data-chat-item>
+                                <div class="chat-avatar">
+                                    {{ lawan.username|first|upper }}
+                                </div>
+                                <div class="chat-list__body">
+                                    <div class="chat-list__name">{{ lawan.username }}</div>
+                                    <div class="chat-list__preview">
+                                        {% with terakhir=item.pesan.last %}
+                                            {% if terakhir %}
+                                                {{ terakhir.isi|truncatechars:55 }}
+                                            {% else %}
+                                                {{ item.barang.judul }} - Mulai percakpan
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% else %}
+                        {% with lawan=item.pembeli %}
+                            <a href="{% url 'chat:detail' item.pk %}" class="chat-list__item" data-chat-item>
+                                <div class="chat-avatar">
+                                    {{ lawan.username|first|upper }}
+                                </div>
+                                <div class="chat-list__body">
+                                    <div class="chat-list__name">{{ lawan.username }}</div>
+                                    <div class="chat-list__preview">
+                                        {% with terakhir=item.pesan.last %}
+                                            {% if terakhir %}
+                                                {{ terakhir.isi|truncatechars:55 }}
+                                            {% else %}
+                                                {{ item.barang.judul }} - Mulai percakapan
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% endif %}
+                {% empty %}
+                    <p class="chat-empty">Belum ada percakapan. Hubungi penjual dari halaman barang untuk memulai chat.</p>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="chat-room chat-room--empty">
+            <p>Pilih percakapan di sebelah kiri untuk membaca dan mengirim pesan.</p>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatSearch = document.getElementById('chat-search');
+    const chatItems = document.querySelectorAll('[data-chat-item]');
+
+    const notificationTrigger = document.getElementById('notification-trigger');
+    const notificationPopup = document.getElementById('notification-popup');
+    const notificationClose = document.getElementById('notification-close');
+
+    chatSearch?.addEventListener('input', function() {
+        const keyword = this.value.toLowerCase().trim();
+
+        chatItems.forEach(function (item) {
+            item.hidden = !item.textContent.toLowerCase().includes(keyword);
+        });
+    });
+
+    function setNotificationOpen(open) {
+        if (!notificationTrigger || !notificationPopup) return;
+
+        notificationPopup.hidden = !open
+        notificationTrigger.setAttribute('aria-expanded', String(open));
+    }
+
+    notificationTrigger?.addEventListener('click', function () {
+        setNotificationOpen(notificationPopup.hidden);
+    });
+
+    notificationClose?.addEventListener('click', function () {
+        setNotificationOpen(false);
+    });
+
+    document.addEventListener('click', function (event) {
+        if (notificationPopup && notificationTrigger && 
+            !notificationPopup.contains(event.target) &&
+            !notificationTrigger.contains(event.target)
+        ) {
+            setNotificationOpen(false);
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            setNotificationOpen(false);
+        }
+    });
+
+    const notificationItems = document.querySelectorAll(
+        '.notification-item[data-mark-read-url]'
+    );
+
+    notificationItems.forEach(function (item) {
+        item.addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            const destination = item.href;
+            const markReadUrl = item.dataset.markReadUrl;
+
+            try {
+                const response = await fetch(markReadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    mode: 'same-origin',
+                });
+
+                if (!response.ok) {
+                    throw new Error('Gagal menandai nofitikasi.');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Hilangkan notifikasi yang diklik
+                    item.remove();
+
+                    // Perbarui titik merah pada ikon lonceng
+                    const bellDot = notificationTrigger?.querySelector('.notification-dot');
+                    
+                    if (data.jumlah_belum_dibaca === 0) {
+                        bellDot?.remove();
+                    } else if (!bellDot && notificationTrigger) {
+                        const dot = document.createElement('span');
+                        dot.className = 'notification-dot';
+                        notificationTrigger.appendChild(dot);
+                    }
+
+                    // Tampilkan pesan kosong jika semua notifikasi sudah dibaca
+                    const notificationList = document.querySelector('.notification_list');
+
+                    if (notificationList && !notificationList.querySelector('.notification-item')) {
+                        notificationList.innerHTML = `
+                            <div class="notification-empty">
+                                <p>Belum ada notifikasi baru</p>
+                                <span>Notifikasi baru akan muncul di sini.</span>
+                            </div>
+                        `;
+                    }
+                    // Buka percakapan setelah status berhasil disimpan
+                    window.location.href = destination;
+                }
+            } catch (error) {
+                console.error(error);
+                window.location.href = destination;
+            }
+        });
+    });
+
+</script>
+{% endblock %}

@@ -114,8 +114,7 @@
         {% else %}
         <button type="button" class="btn btn--primary btn--lg" disabled>{{ barang.get_status_display }}</button>
         {% endif %}
-        {# TODO (Modul 5 · Chat): ganti href ke URL chat dengan pemilik. #}
-        <a href="#" class="btn btn--outline btn--lg">
+        <a href="{% url 'chat:mulai' barang.id %}" class="btn btn--outline btn--lg">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="13" rx="3"/><path d="M8 20l3-3M8.5 9.5h7M8.5 12.5h4.5"/></svg>
           Chat Pemilik
         </a>
