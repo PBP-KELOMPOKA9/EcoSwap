@@ -123,10 +123,190 @@
       {% for error in form.deskripsi.errors %}<p class="field__error">{{ error }}</p>{% endfor %}
     </div>
 
+    {# ---------- Pilihan Metode Pengambilan (Checkbox) ---------- #}
+    <div class="field">
+      <label class="field__label">Metode Pengambilan Barang <span class="req">*</span></label>
+      <div style="display: flex; gap: 24px; margin-top: 8px;">
+        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+          <input type="checkbox" name="metode_cod" id="check-cod" value="1"
+                 {% if not barang.pk or barang.bisa_cod %}checked{% endif %}
+                 onchange="toggleMetodeCheckbox()">
+          🤝 Ketemuan Langsung (COD)
+        </label>
+        <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600;">
+          <input type="checkbox" name="metode_kurir" id="check-kurir" value="1"
+                 {% if barang.bisa_kurir %}checked{% endif %}
+                 onchange="toggleMetodeCheckbox()">
+          📦 Kirim via Kurir
+        </label>
+      </div>
+      <p id="metode-error" class="field__error" style="display: none;">Pilih minimal satu metode pengambilan.</p>
+    </div>
+    {# ---------- Leaflet / OpenStreetMap Picker ---------- #}
+    <div id="section-lokasi-cod" class="field" {% if barang.metode_pengambilan == 'kurir' %}style="display: none;"{% endif %}>
+      <label class="field__label">Lokasi Temu / COD</label>
+      
+      <!-- Container Input Pencarian Autocomplete -->
+      <div style="position: relative;">
+        <input type="text" id="map-search" class="input" 
+               value="{% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% endif %}" 
+               placeholder="🔍 Cari area kampus, stasiun, atau kos (cth: Kutek, Margonda, Fasilkom UI)..." 
+               autocomplete="off" style="margin-bottom: 10px;">
+        <!-- Dropdown hasil pencarian -->
+        <div id="search-results" class="search-results-dropdown"></div>
+      </div>
+      
+      <!-- Kontainer Peta Leaflet -->
+      <div id="map-picker" style="height: 300px; width: 100%; border-radius: 14px; border: 1.5px solid var(--line); z-index: 10;"></div>
+      
+      <!-- Status Lokasi Terpilih -->
+      <div id="location-selected-badge" style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: var(--green); display: flex; align-items: center; gap: 6px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+        <span id="location-text">
+          {% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% else %}Geser pin di peta atau cari tempat di atas{% endif %}
+        </span>
+      </div>
+      
+      <!-- Hidden Input yang dikirim ke Backend -->
+      <input type="hidden" name="nama_tempat" id="id_nama_tempat" value="{% if barang.lokasi %}{{ barang.lokasi.nama_tempat }}{% endif %}">
+      <input type="hidden" name="alamat_lengkap" id="id_alamat_lengkap" value="{% if barang.lokasi %}{{ barang.lokasi.alamat_lengkap }}{% endif %}">
+      <input type="hidden" name="latitude" id="id_latitude" value="{% if barang.lokasi %}{{ barang.lokasi.latitude }}{% endif %}">
+      <input type="hidden" name="longitude" id="id_longitude" value="{% if barang.lokasi %}{{ barang.lokasi.longitude }}{% endif %}">
+    </div>
     <div class="form-actions">
       <a href="{% if mode == 'edit' %}{{ barang.get_absolute_url }}{% else %}{% url 'barang:barang_saya' %}{% endif %}" class="btn btn--outline btn--lg">Batal</a>
       <button type="submit" class="btn btn--primary btn--lg" data-submit>{% if mode == 'edit' %}Simpan Perubahan{% else %}Simpan Barang{% endif %}</button>
     </div>
   </form>
 </div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  /* global L */
+  let map, marker;
+  let searchTimeout = null;
+  function toggleMetodeCheckbox() {
+    const isCod = document.getElementById('check-cod').checked;
+    const isKurir = document.getElementById('check-kurir').checked;
+    const sectionMap = document.getElementById('section-lokasi-cod');
+    const errorMsg = document.getElementById('metode-error');
+    // Validasi minimal 1 terpilih
+    if (!isCod && !isKurir) {
+      if (errorMsg) errorMsg.style.display = 'block';
+    } else {
+      if (errorMsg) errorMsg.style.display = 'none';
+    }
+    // Tampilkan / sembunyikan peta jika COD dicentang
+    if (sectionMap) {
+      if (isCod) {
+        sectionMap.style.display = 'block';
+        if (map) setTimeout(() => { map.invalidateSize(); }, 200);
+      } else {
+        sectionMap.style.display = 'none';
+      }
+    }
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    const defaultLat = parseFloat("{{ barang.lokasi.latitude|default:'-6.3627' }}");
+    const defaultLng = parseFloat("{{ barang.lokasi.longitude|default:'106.8271' }}");
+    const initialPos = [defaultLat, defaultLng];
+    // Inisialisasi Peta Leaflet (OpenStreetMap)
+    map = L.map('map-picker').setView(initialPos, 14);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri'
+    }).addTo(map);
+    // Marker dengan kemampuan Drag
+    marker = L.marker(initialPos, { draggable: true }).addTo(map);
+    // Event saat peta diklik
+    map.on('click', function (e) {
+      marker.setLatLng(e.latlng);
+      fetchReverseGeocode(e.latlng.lat, e.latlng.lng);
+    });
+    // Event saat pin digeser (drag)
+    marker.on('dragend', function (e) {
+      const pos = marker.getLatLng();
+      fetchReverseGeocode(pos.lat, pos.lng);
+    });
+    // Autocomplete Search Box (Nominatim OpenStreetMap)
+    const searchInput = document.getElementById("map-search");
+    const resultsContainer = document.getElementById("search-results");
+    searchInput.addEventListener("input", function (e) {
+      const query = e.target.value.trim();
+      document.getElementById("id_nama_tempat").value = query;
+      document.getElementById("location-text").innerText = query || "Geser pin di peta atau cari tempat di atas";
+      if (query.length < 3) {
+        resultsContainer.style.display = "none";
+        return;
+      }
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        // Cari tempat fokus di area Depok & sekitarnya
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&viewbox=106.75,-6.30,106.90,-6.42&bounded=0&limit=5`)
+          .then(res => res.json())
+          .then(data => {
+            resultsContainer.innerHTML = "";
+            if (data.length === 0) {
+              resultsContainer.style.display = "none";
+              return;
+            }
+            data.forEach(item => {
+              const div = document.createElement("div");
+              div.className = "search-result-item";
+              div.innerText = item.display_name;
+              div.addEventListener("click", () => {
+                const lat = parseFloat(item.lat);
+                const lon = parseFloat(item.lon);
+                const cleanName = item.display_name.split(",").slice(0, 2).join(",").trim();
+                map.setView([lat, lon], 16);
+                marker.setLatLng([lat, lon]);
+                searchInput.value = cleanName;
+                setCoordinates(lat, lon, cleanName, item.display_name);
+                resultsContainer.style.display = "none";
+              });
+              resultsContainer.appendChild(div);
+            });
+            resultsContainer.style.display = "block";
+          })
+          .catch(() => {
+            resultsContainer.style.display = "none";
+          });
+      }, 350);
+    });
+    // Tutup dropdown jika klik di luar
+    document.addEventListener("click", function (e) {
+      if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+        resultsContainer.style.display = "none";
+      }
+    });
+  });
+  // Reverse Geocode (Ambil nama tempat saat klik peta)
+  function fetchReverseGeocode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+      .then(res => res.json())
+      .then(data => {
+        let nama = "Titik Temu COD";
+        if (data && data.address) {
+          const addr = data.address;
+          nama = addr.road || addr.suburb || addr.neighbourhood || addr.amenity || addr.city || "Depok";
+          if (addr.city && !nama.includes(addr.city)) {
+            nama += ", " + addr.city;
+          }
+        }
+        document.getElementById("map-search").value = nama;
+        setCoordinates(lat, lng, nama, data.display_name || "");
+      })
+      .catch(() => {
+        const fallback = document.getElementById("map-search").value.trim() || "Area Depok";
+        setCoordinates(lat, lng, fallback, "");
+      });
+  }
+  function setCoordinates(lat, lng, name, address) {
+    document.getElementById("id_latitude").value = lat;
+    document.getElementById("id_longitude").value = lng;
+    document.getElementById("id_nama_tempat").value = name;
+    document.getElementById("id_alamat_lengkap").value = address;
+    document.getElementById("location-text").innerText = name + (address ? " (" + address + ")" : "");
+  }
+</script>
 {% endblock %}

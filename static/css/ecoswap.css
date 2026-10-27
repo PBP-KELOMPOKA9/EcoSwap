@@ -1418,6 +1418,39 @@ fieldset.field legend { padding: 0; }
   border-radius: 999px;
 }
 
+/* MAPS */
+.search-results-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  border: 1px solid var(--line, #DCE2CF);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 31, 63, 0.12);
+  z-index: 1000;
+  max-height: 220px;
+  overflow-y: auto;
+  display: none;
+  margin-top: 4px;
+  padding: 4px 0;
+}
+.search-result-item {
+  padding: 10px 14px;
+  font-size: 13.5px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--navy, #001F3F);
+  transition: background 0.15s ease;
+}
+.search-result-item:hover {
+  background: var(--cream-section, #F2F5E0);
+  color: var(--green, #00804C);
+}
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -1486,9 +1519,7 @@ fieldset.field legend { padding: 0; }
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  .langkah-connector {
-    display: none;
-  }
+
   .langkah-title {
     font-size: 26px;
   }

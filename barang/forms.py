@@ -31,7 +31,7 @@ class BarangForm(forms.ModelForm):
 
     class Meta:
         model = Barang
-        fields = ['judul', 'kategori', 'kondisi', 'tipe', 'harga', 'deskripsi']
+        fields = ['judul', 'kategori', 'kondisi', 'tipe', 'harga', 'deskripsi', 'metode_pengambilan']
         widgets = {
             'judul': forms.TextInput(attrs={'placeholder': 'Contoh: Rak buku kayu 4 susun'}),
             'tipe': forms.RadioSelect,
@@ -59,7 +59,8 @@ class BarangForm(forms.ModelForm):
             elif not self.instance.pk:
                 self.initial.setdefault('tipe', Barang.Tipe.JUAL)
                 self.initial['harga'] = ''
-
+        self.fields['metode_pengambilan'].required = False
+        
     @property
     def foto_lama(self):
         if self.instance.pk:
