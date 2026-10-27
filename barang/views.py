@@ -197,7 +197,6 @@ def tambah(request):
         'form': form,
         'mode': 'tambah',
         'nav_aktif': 'tambah',
-        'api_key': settings.GOOGLE_MAPS_API_KEY,
     })
 
 
@@ -242,7 +241,7 @@ def edit(request, pk):
                 )
                 barang.lokasi = lokasi_obj
             barang.save()
-            
+
             messages.success(request, 'Perubahan berhasil disimpan.')
             return redirect(barang)
     else:
@@ -252,7 +251,6 @@ def edit(request, pk):
         'barang': barang,
         'mode': 'edit',
         'nav_aktif': 'barang_saya',
-        'api_key': settings.GOOGLE_MAPS_API_KEY,
     })
 
 
