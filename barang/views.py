@@ -13,8 +13,28 @@ from .models import Barang, Wishlist
 
 def home(request):
     total_tersedia = Barang.objects.filter(status=Barang.Status.TERSEDIA).count()
+    
+    # Ambil filter kategori jika ada diklik
+    kategori_filter = request.GET.get('kategori', '')
+    
+    barang_qs = (
+        Barang.objects.filter(status=Barang.Status.TERSEDIA)
+        .select_related('pemilik')
+        .prefetch_related('foto')
+    )
+    
+    if kategori_filter in Barang.Kategori.values:
+        barang_qs = barang_qs.filter(kategori=kategori_filter)
+        
+    # Ambil 8 barang untuk tampilan 2 baris x 4 kolom
+    barang_list = barang_qs[:8]
+    wishlist_ids = _wishlist_ids(request.user)
     return render(request, 'home.html', {
         'total_tersedia': total_tersedia,
+        'barang_list': barang_list,
+        'wishlist_ids': wishlist_ids,
+        'kategori_filter': kategori_filter,
+        'kategori_choices': Barang.Kategori.choices,
         'nav_aktif': 'beranda',
     })
 

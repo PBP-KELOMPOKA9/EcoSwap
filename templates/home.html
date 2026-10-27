@@ -14,22 +14,72 @@
       <p class="hero-sub">
         Temukan barang layak pakai dari teman kampus dan penghuni kos di sekitarmu. Lebih hemat, lebih dekat, lebih ramah bumi.
       </p>
-      <form class="search-bar" action="{% url 'barang:katalog' %}" method="get">
+      <form class="search-bar" action="{% url 'barang:katalog' %}" method="get"> <!-- Langsung arahin ke katalog abis search-->
         <input type="hidden" name="urut" value="terbaru">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/> <!-- Icon Pencarian-->
         </svg>
         <input type="search" name="q" placeholder="Cari buku, rak, pakaian, atau barang lainnya">
         <button type="submit" class="btn-search">Cari Barang</button>
       </form>
       <div class="hero-stats">
-        <span><strong>{{ total_tersedia }}+</strong> barang tersedia</span>
+        <span><strong>{{ total_tersedia }}+</strong> barang tersedia</span> <!-- Ambil Total dari View Home-->
         <div class="sep"></div>
         <span>Gratis untuk mulai berbagi</span>
       </div>
     </div>
     <div class = "hero-right-content">
-      <img src="{% static 'img/hero-landing-page.png' %}" alt="" width="520" height="420">
+      <img src="{% static 'img/hero-landing-page.png' %}" alt="Hero Landing Page" width="520" height="420">
     </div>
   </section>
+
+  <section class="jelajahi-wrap">
+    <!-- Header: Judul di kiri, Link ke katalog di kanan -->
+    <div class="jelajahi-header">
+      <div class="jelajahi-title-wrap">
+        <p class="eyebrow">JELAJAHI SEKITAR KAMU</p>
+        <h2 class="jelajahi-title">Temukan barang yang kamu butuhkan</h2>
+      </div>
+      <a href="{% url 'barang:katalog' %}" class="jelajahi-link-all">
+        Lihat semua barang
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+    </div>
+    <!-- Filter Pills / Kategori -->
+    <div class="jelajahi-categories">
+      <a href="{% url 'barang:home' %}" class="jelajahi-pill {% if not kategori_filter %}is-active{% endif %}">
+        Semua Barang
+      </a>
+      {% for val, label in kategori_choices %}
+      <a href="{% url 'barang:home' %}?kategori={{ val }}" class="jelajahi-pill {% if kategori_filter == val %}is-active{% endif %}">
+        {{ label }}
+      </a>
+      {% endfor %}
+    </div>
+    <!-- Grid Kartu Barang (4 kolom x 2 baris) -->
+    {% if barang_list %}
+    <div class="grid-barang">
+      {% for barang in barang_list %}
+        {% include "barang/partials/card.html" %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="jelajahi-empty">
+      <p>Belum ada barang tersedia untuk kategori ini.</p>
+    </div>
+    {% endif %}
+    <!-- Tombol Tampilkan Lebih Banyak -->
+    <div class="jelajahi-more">
+      <a href="{% url 'barang:katalog' %}{% if kategori_filter %}?kategori={{ kategori_filter }}{% endif %}" class="btn-jelajahi-more">
+        <span>Tampilkan lebih banyak</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </a>
+    </div>
+  </section>
+  
 {% endblock %}

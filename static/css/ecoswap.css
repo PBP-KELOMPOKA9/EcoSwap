@@ -1043,6 +1043,123 @@ fieldset.field legend { padding: 0; }
     }
 
 /* ============================================================
+   JELAJAHI SECTION (LANDING PAGE)
+   ============================================================ */
+.jelajahi-wrap {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+  width: 100%;
+}
+.jelajahi-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.jelajahi-title-wrap .eyebrow {
+  margin-bottom: 8px;
+}
+.jelajahi-title {
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 32px;
+  color: var(--navy);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.jelajahi-link-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--green);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 14px;
+  transition: transform 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+.jelajahi-link-all svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+.jelajahi-link-all:hover {
+  color: var(--green-dark);
+}
+.jelajahi-link-all:hover svg {
+  transform: translateX(4px);
+}
+/* Kategori Filter Pills */
+.jelajahi-categories {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.jelajahi-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--navy);
+  background: var(--white);
+  border: 1.5px solid var(--line-strong);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.jelajahi-pill:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+/* Pill aktif warna lime */
+.jelajahi-pill.is-active {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--navy);
+}
+/* Tombol Tampilkan Lebih Banyak */
+.jelajahi-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+.btn-jelajahi-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1.5px solid var(--green);
+  background: transparent;
+  color: var(--green);
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-jelajahi-more svg {
+  width: 15px;
+  height: 15px;
+}
+.btn-jelajahi-more:hover {
+  background: var(--mint);
+  border-color: var(--green);
+  color: var(--green-dark);
+}
+.jelajahi-empty {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--muted);
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media (max-width: 1180px) {
