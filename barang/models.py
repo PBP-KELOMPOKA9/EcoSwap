@@ -29,6 +29,10 @@ class Barang(models.Model):
         DIPESAN = 'dipesan', 'Dipesan'
         SELESAI = 'selesai', 'Selesai'
 
+    class MetodePengambilan(models.TextChoices):
+        COD = 'cod', 'Ketemuan Langsung'
+        KURIR = 'kurir', 'Kirim via Kurir'
+
     pemilik = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -43,6 +47,7 @@ class Barang(models.Model):
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.TERSEDIA
     )
+    metode_pengambilan = models.CharField(max_length=10, choices=MetodePengambilan.choices, default=MetodePengambilan.COD)
     lokasi = models.ForeignKey('lokasi.Lokasi', on_delete=models.SET_NULL, null=True, blank=True)
     jumlah_dilihat = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
