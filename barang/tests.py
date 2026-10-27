@@ -265,3 +265,43 @@ class WishlistTest(TestCase):
         self.client.login(username='pencari', password='rahasia123')
         res = self.client.get(reverse('barang:wishlist'))
         self.assertContains(res, 'Belum ada barang favorit')
+
+
+class DetailUlasanTest(TestCase):
+    """Ringkasan ulasan dari Modul 4 tampil di halaman detail barang."""
+
+    def setUp(self):
+        from ulasan.models import Ulasan
+        User = get_user_model()
+        self.pemilik = User.objects.create_user('pemilik', password='rahasia123')
+        self.pencari = User.objects.create_user('pencari', password='rahasia123')
+        self.barang = Barang.objects.create(
+            pemilik=self.pemilik, judul='Rak Buku Kayu', deskripsi='-',
+            kategori='furnitur', kondisi='bekas_baik', tipe='jual', harga=75000,
+        )
+        self.Ulasan = Ulasan
+
+    def test_detail_tanpa_ulasan(self):
+        res = self.client.get(self.barang.get_absolute_url())
+        self.assertContains(res, 'Belum ada ulasan')
+        self.assertContains(res, reverse('ulasan:daftar_ulasan', args=[self.barang.pk]))
+
+    def test_detail_menampilkan_rata_rata_dan_ulasan_terbaru(self):
+        self.Ulasan.objects.create(barang=self.barang, user=self.pencari, rating=5, komentar='Masih kokoh banget.')
+        self.Ulasan.objects.create(barang=self.barang, user=self.pemilik, rating=4, komentar='Sesuai deskripsi.')
+        res = self.client.get(self.barang.get_absolute_url())
+        self.assertEqual(res.context['ulasan_total'], 2)
+        self.assertEqual(res.context['ulasan_rata'], 4.5)
+        self.assertContains(res, 'Masih kokoh banget.')
+        self.assertContains(res, 'Lihat semua ulasan')
+
+    def test_rating_pemilik_dari_semua_barangnya(self):
+        lain = Barang.objects.create(
+            pemilik=self.pemilik, judul='Kursi Lipat', deskripsi='-',
+            kategori='furnitur', kondisi='baru', tipe='donasi',
+        )
+        self.Ulasan.objects.create(barang=self.barang, user=self.pencari, rating=5)
+        self.Ulasan.objects.create(barang=lain, user=self.pencari, rating=3)
+        res = self.client.get(self.barang.get_absolute_url())
+        self.assertEqual(res.context['pemilik_rating'], 4.0)
+        self.assertContains(res, '4,0 (2 ulasan)')

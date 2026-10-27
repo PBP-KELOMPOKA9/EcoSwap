@@ -33,6 +33,9 @@ SECRET_KEY = 'django-insecure-c&d4#@k3bly-!ebnb(%tz)wv$dfbw(3y-z$3d)!3lxn6+=(w5g
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "cheryl-mahira-ecoswap.pws.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://cheryl-mahira-ecoswap.pws.cs.ui.ac.id'
+]
 PRODUCTION = os.getenv('PRODUCTION', 'False').lower() == 'true'
 
 # Application definition
@@ -44,7 +47,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'profil',
     'barang',
+    'ulasan',
     'chat',
 ]
 
@@ -151,7 +156,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Halaman login sementara pakai login admin Django.
 # TODO (Modul 2): ganti ke URL login milik modul Profil kalau sudah ada.
-LOGIN_URL = 'admin:login'
+LOGIN_URL = 'login'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

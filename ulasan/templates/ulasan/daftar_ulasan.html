@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'ulasan/css/style.css' %}">
+
+<div class="ulasan-container">
+    
+    <div class="header-title">
+        <a href="{% url 'barang:detail' barang.id %}">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Ulasan Produk
+        </a>
+    </div>
+
+    <div class="stats-container">
+        <div class="bars-section">
+            <div class="bar-row"><span>5 &#9733;</span> <div class="bar-track"><div class="bar-fill" data-count="{{ bintang_stats.5 }}" data-total="{{ total_ulasan }}"></div></div> <span class="review-count-text">{{ bintang_stats.5 }} reviews</span></div>
+            <div class="bar-row"><span>4 &#9733;</span> <div class="bar-track"><div class="bar-fill" data-count="{{ bintang_stats.4 }}" data-total="{{ total_ulasan }}"></div></div> <span class="review-count-text">{{ bintang_stats.4 }} reviews</span></div>
+            <div class="bar-row"><span>3 &#9733;</span> <div class="bar-track"><div class="bar-fill" data-count="{{ bintang_stats.3 }}" data-total="{{ total_ulasan }}"></div></div> <span class="review-count-text">{{ bintang_stats.3 }} reviews</span></div>
+            <div class="bar-row"><span>2 &#9733;</span> <div class="bar-track"><div class="bar-fill" data-count="{{ bintang_stats.2 }}" data-total="{{ total_ulasan }}"></div></div> <span class="review-count-text">{{ bintang_stats.2 }} reviews</span></div>
+            <div class="bar-row"><span>1 &#9733;</span> <div class="bar-track"><div class="bar-fill" data-count="{{ bintang_stats.1 }}" data-total="{{ total_ulasan }}"></div></div> <span class="review-count-text">{{ bintang_stats.1 }} reviews</span></div>
+        </div>
+        
+        <div class="avg-section">
+            <p class="avg-score">{{ rata_rata }}</p>
+            <div class="avg-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+            <p style="margin:0; font-size:14px; color:#666; font-weight: 600;">{{ total_ulasan }} ulasan</p>
+        </div>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 40px 0 10px 0;">
+
+    {% if ulasan_list %}
+        {% for ulasan in ulasan_list %}
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="user-profile">
+                        <img src="https://ui-avatars.com/api/?name={{ ulasan.user.username }}&background=eaeee9&color=1a2b3c&bold=true" class="avatar" alt="Avatar">
+                        <div class="user-info">
+                            <strong>{{ ulasan.user.username }}</strong>
+                            <small>{{ ulasan.tanggal_dibuat|date:"d F Y" }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="review-stars-actions">
+                        {% if ulasan.user == request.user %}
+                            <span class="review-actions">
+                                <a href="javascript:void(0)" onclick="bukaModalEdit('{{ ulasan.id }}')">edit</a> | 
+                                <a href="{% url 'ulasan:hapus_ulasan' ulasan.id %}" onclick="return confirm('Hapus ulasan ini?');">hapus</a>
+                            </span>
+
+                            <div class="modal-overlay" id="modal-edit-{{ ulasan.id }}">
+                                <div class="modal-content">
+                                    <h3 class="modal-title">Edit Ulasan Anda</h3>
+                                    <p class="modal-subtitle">Perbarui penilaian dan komentar Anda.</p>
+                                    
+                                    <form method="POST" action="{% url 'ulasan:edit_ulasan' ulasan.id %}" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        
+                                        <input type="hidden" name="deleted_images" id="deleted_images_{{ ulasan.id }}" value="">
+                                        
+                                        <div class="star-rating edit-stars" id="edit-stars-{{ ulasan.id }}">
+                                            <input type="radio" id="edit-star5-{{ ulasan.id }}" name="rating" value="5" {% if ulasan.rating == 5 %}checked{% endif %} required /><label for="edit-star5-{{ ulasan.id }}">&#9734;</label>
+                                            <input type="radio" id="edit-star4-{{ ulasan.id }}" name="rating" value="4" {% if ulasan.rating == 4 %}checked{% endif %} /><label for="edit-star4-{{ ulasan.id }}">&#9734;</label>
+                                            <input type="radio" id="edit-star3-{{ ulasan.id }}" name="rating" value="3" {% if ulasan.rating == 3 %}checked{% endif %} /><label for="edit-star3-{{ ulasan.id }}">&#9734;</label>
+                                            <input type="radio" id="edit-star2-{{ ulasan.id }}" name="rating" value="2" {% if ulasan.rating == 2 %}checked{% endif %} /><label for="edit-star2-{{ ulasan.id }}">&#9734;</label>
+                                            <input type="radio" id="edit-star1-{{ ulasan.id }}" name="rating" value="1" {% if ulasan.rating == 1 %}checked{% endif %} /><label for="edit-star1-{{ ulasan.id }}">&#9734;</label>
+                                        </div>
+
+                                        <label class="form-label">Komentar:</label>
+                                        <textarea name="komentar" class="form-textarea">{{ ulasan.komentar }}</textarea>
+
+                                        <label class="form-label">Foto Produk (Maks. 4):</label>
+                                        <div class="upload-box">
+                                            <div id="preview-container-edit-{{ ulasan.id }}" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px;">
+                                                
+                                                {% for foto in ulasan.foto_terlampir.all %}
+                                                <div id="foto-lama-{{ foto.id }}" style="position: relative; display: inline-block;">
+                                                    <img src="{{ foto.gambar.url }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                                    <button type="button" onclick="hapusFotoLama({{ ulasan.id }}, {{ foto.id }})" style="position: absolute; top: -5px; right: -5px; background: #1a2b3c; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
+                                                </div>
+                                                {% endfor %}
+                                                
+                                            </div>
+                                            <div id="input-container-edit-{{ ulasan.id }}" style="display: none;"></div>
+                                            
+                                            <button type="button" id="btn-tambah-foto-edit-{{ ulasan.id }}" onclick="tambahFotoEdit({{ ulasan.id }})" style="background: white; border: 1px solid #ddd; color: #1a2b3c; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600;">Pilih Foto Baru</button>
+                                        </div>
+
+                                        <div class="modal-actions">
+                                            <button type="button" onclick="tutupModalEdit('{{ ulasan.id }}')" class="btn-batal">Batal</button>
+                                            <button type="submit" class="btn-unggah">Simpan Perubahan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <script>
+                                window['currentImageCountEdit_' + {{ ulasan.id }}] = {{ ulasan.foto_terlampir.count }};
+                                window['deletedImageIds_' + {{ ulasan.id }}] = [];
+                                
+                                setTimeout(() => {
+                                    const checkedStar = document.querySelector('#edit-stars-{{ ulasan.id }} input:checked');
+                                    if(checkedStar) {
+                                        let label = document.querySelector('label[for="' + checkedStar.id + '"]');
+                                        if(label) {
+                                            label.innerHTML = '&#9733;';
+                                            let next = label.nextElementSibling;
+                                            while(next) {
+                                                if(next.tagName === 'LABEL') next.innerHTML = '&#9733;';
+                                                next = next.nextElementSibling;
+                                            }
+                                        }
+                                    }
+                                }, 100);
+                            </script>
+                        {% endif %}
+                        <span class="stars-right">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= ulasan.rating %}&#9733;{% else %}&#9734;{% endif %}
+                            {% endfor %}
+                        </span>
+                    </div>
+                </div>
+                
+                <p class="review-text">{{ ulasan.komentar }}</p>
+
+                <div class="review-images">
+                {% for foto in ulasan.foto_terlampir.all %}
+                    <img src="{{ foto.gambar.url }}" alt="Foto ulasan" onclick="bukaModalGambar('{{ foto.gambar.url }}')">
+                {% endfor %}
+                </div>
+                
+                <button class="btn-like {% if request.user in ulasan.likes.all %}liked{% endif %}" data-id="{{ ulasan.id }}" data-url="{% url 'ulasan:toggle_like' ulasan.id %}">
+                    Membantu (<span id="like-count-{{ ulasan.id }}">{{ ulasan.total_likes }}</span>) 
+                    <svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
+                </button>
+                <div style="clear: both;"></div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; color: gray; margin-top: 40px;">Belum ada ulasan untuk barang ini.</p>
+    {% endif %}
+
+</div>
+
+<div class="fab-container">
+    <div class="fab" onclick="bukaModalForm()">
+        <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+        <span class="fab-text">Tambahkan ulasan</span>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-form">
+    <div class="modal-content">
+        <h3 class="modal-title">Masukkan Ulasan Anda</h3>
+        <p class="modal-subtitle">Bagaimana Anda menilai produk Anda?</p>
+        
+        <form method="POST" action="" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" required /><label for="star5">&#9734;</label>
+                <input type="radio" id="star4" name="rating" value="4" /><label for="star4">&#9734;</label>
+                <input type="radio" id="star3" name="rating" value="3" /><label for="star3">&#9734;</label>
+                <input type="radio" id="star2" name="rating" value="2" /><label for="star2">&#9734;</label>
+                <input type="radio" id="star1" name="rating" value="1" /><label for="star1">&#9734;</label>
+            </div>
+
+            <label class="form-label">Beritahu kami lebih lanjut.</label>
+            <textarea name="komentar" class="form-textarea"></textarea>
+
+            <label class="form-label">Foto Produk.</label>
+            <div class="upload-box">
+                <div id="preview-container" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 15px;"></div>
+                <div id="input-container" style="display: none;"></div>
+                
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#85a985" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                
+                <p style="font-size: 14px; font-weight: 600; color: #1a2b3c; margin: 0 0 5px 0;">Unggah foto (maks. 4)</p>
+                <p style="font-size: 11px; color: #888; margin: 0 0 15px 0;">JPG atau PNG, maksimal 5 MB per foto</p>
+                
+                <button type="button" id="btn-tambah-foto" style="background: white; border: 1px solid #ddd; color: #1a2b3c; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 600;">Pilih Foto</button>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" onclick="tutupModalForm()" class="btn-batal">Batal</button>
+                <button type="submit" class="btn-unggah">Unggah</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-gambar" onclick="tutupModalGambar()">
+    <div class="modal-content img-preview-content">
+        <img id="img-modal-target" src="" alt="Preview">
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.bar-fill').forEach(bar => {
+            const count = parseInt(bar.getAttribute('data-count')) || 0;
+            const total = parseInt(bar.getAttribute('data-total')) || 1;
+            const percentage = total > 0 ? (count / total) * 100 : 0;
+            setTimeout(() => { bar.style.width = percentage + '%'; }, 100);
+        });
+    });
+
+    function bukaModalForm() { document.getElementById('modal-form').style.display = 'flex'; }
+    function tutupModalForm() { document.getElementById('modal-form').style.display = 'none'; }
+    function bukaModalGambar(url) {
+        document.getElementById('img-modal-target').src = url;
+        document.getElementById('modal-gambar').style.display = 'flex';
+    }
+    function tutupModalGambar() { document.getElementById('modal-gambar').style.display = 'none'; }
+
+    document.querySelectorAll('.star-rating label').forEach(label => {
+        label.addEventListener('click', function() {
+            const container = this.closest('.star-rating');
+            container.querySelectorAll('label').forEach(l => l.innerHTML = '&#9734;');
+            
+            this.innerHTML = '&#9733;';
+            let nextSibling = this.nextElementSibling;
+            while(nextSibling) {
+                if(nextSibling.tagName === 'LABEL') nextSibling.innerHTML = '&#9733;';
+                nextSibling = nextSibling.nextElementSibling;
+            }
+        });
+    });
+
+    function bukaModalEdit(ulasanId) {
+        document.getElementById('modal-edit-' + ulasanId).style.display = 'flex';
+    }
+    
+    function tutupModalEdit(ulasanId) {
+        document.getElementById('modal-edit-' + ulasanId).style.display = 'none';
+    }
+
+    function hapusFotoLama(ulasanId, fotoId) {
+        window['deletedImageIds_' + ulasanId].push(fotoId);
+        document.getElementById('deleted_images_' + ulasanId).value = window['deletedImageIds_' + ulasanId].join(',');
+        
+        document.getElementById('foto-lama-' + fotoId).remove();
+        
+        window['currentImageCountEdit_' + ulasanId]--;
+        if (window['currentImageCountEdit_' + ulasanId] < maxImages) {
+            document.getElementById('btn-tambah-foto-edit-' + ulasanId).style.display = 'inline-block';
+        }
+    }
+
+    function tambahFotoEdit(ulasanId) {
+        if (window['currentImageCountEdit_' + ulasanId] >= maxImages) return;
+        
+        const inputBaru = document.createElement('input');
+        inputBaru.type = 'file';
+        inputBaru.name = 'gambar';
+        inputBaru.accept = 'image/*';
+        
+        inputBaru.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                window['currentImageCountEdit_' + ulasanId]++;
+                
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.display = 'inline-block';
+                
+                const imgPreview = document.createElement('img');
+                imgPreview.src = URL.createObjectURL(file);
+                imgPreview.style.width = '60px';
+                imgPreview.style.height = '60px';
+                imgPreview.style.objectFit = 'cover';
+                imgPreview.style.borderRadius = '8px';
+                
+                const btnSilang = document.createElement('button');
+                btnSilang.type = 'button';
+                btnSilang.innerHTML = '&times;';
+                btnSilang.style.cssText = 'position: absolute; top: -5px; right: -5px; background: #1a2b3c; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+                
+                btnSilang.addEventListener('click', function() {
+                    wrapper.remove();
+                    inputBaru.remove();
+                    window['currentImageCountEdit_' + ulasanId]--;
+                    if (window['currentImageCountEdit_' + ulasanId] < maxImages) {
+                        document.getElementById('btn-tambah-foto-edit-' + ulasanId).style.display = 'inline-block';
+                    }
+                });
+                
+                wrapper.appendChild(imgPreview);
+                wrapper.appendChild(btnSilang);
+                document.getElementById('preview-container-edit-' + ulasanId).appendChild(wrapper);
+                document.getElementById('input-container-edit-' + ulasanId).appendChild(inputBaru);
+                
+                if (window['currentImageCountEdit_' + ulasanId] >= maxImages) {
+                    document.getElementById('btn-tambah-foto-edit-' + ulasanId).style.display = 'none';
+                }
+            }
+        });
+        
+        inputBaru.click();
+    }
+
+    const maxImages = 4;
+    let currentImageCount = 0;
+    
+    document.getElementById('btn-tambah-foto').addEventListener('click', function() {
+        if (currentImageCount >= maxImages) return;
+        const inputBaru = document.createElement('input');
+        inputBaru.type = 'file';
+        inputBaru.name = 'gambar';
+        inputBaru.accept = 'image/*';
+        
+        inputBaru.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                currentImageCount++;
+                const wrapper = document.createElement('div');
+                wrapper.style.position = 'relative';
+                wrapper.style.display = 'inline-block';
+                
+                const imgPreview = document.createElement('img');
+                imgPreview.src = URL.createObjectURL(file);
+                imgPreview.style.width = '60px';
+                imgPreview.style.height = '60px';
+                imgPreview.style.objectFit = 'cover';
+                imgPreview.style.borderRadius = '8px';
+                
+                const btnSilang = document.createElement('button');
+                btnSilang.type = 'button';
+                btnSilang.innerHTML = '&times;';
+                btnSilang.style.cssText = 'position: absolute; top: -5px; right: -5px; background: #1a2b3c; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;';
+                
+                btnSilang.addEventListener('click', function() {
+                    wrapper.remove();
+                    inputBaru.remove();
+                    currentImageCount--;
+                    if (currentImageCount < maxImages) document.getElementById('btn-tambah-foto').style.display = 'inline-block';
+                });
+                
+                wrapper.appendChild(imgPreview);
+                wrapper.appendChild(btnSilang);
+                document.getElementById('preview-container').appendChild(wrapper);
+                document.getElementById('input-container').appendChild(inputBaru);
+                
+                if (currentImageCount >= maxImages) document.getElementById('btn-tambah-foto').style.display = 'none';
+            }
+        });
+        inputBaru.click();
+    });
+
+    document.querySelectorAll('.btn-like').forEach(button => {
+        button.addEventListener('click', function() {
+            const ulasanId = this.getAttribute('data-id');
+            const url = this.getAttribute('data-url');
+            const countSpan = document.getElementById(`like-count-${ulasanId}`);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.total_likes !== undefined) {
+                    countSpan.textContent = data.total_likes;
+                    if (data.liked) {
+                        this.classList.add('liked');
+                    } else {
+                        this.classList.remove('liked');
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Landing{% endblock %}
+
+{% block content %}
+  <section class="hero-wrap">
+    <div class="hero-content">
+      <p class="eyebrow">Dari Sekitar, Untuk Sekitar</p>
+      <h1 class="hero-title">
+        Barang Lama,
+        <span class="highlight">Cerita Baru.</span>
+      </h1>
+      <p class="hero-sub">
+        Temukan barang layak pakai dari teman kampus dan penghuni kos di sekitarmu. Lebih hemat, lebih dekat, lebih ramah bumi.
+      </p>
+      <form class="search-bar" action="{% url 'barang:katalog' %}" method="get">
+        <input type="hidden" name="urut" value="terbaru">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input type="search" name="q" placeholder="Cari buku, rak, pakaian, atau barang lainnya">
+        <button type="submit" class="btn-search">Cari Barang</button>
+      </form>
+      <div class="hero-stats">
+        <span><strong>{{ total_tersedia }}+</strong> barang tersedia</span>
+        <div class="sep"></div>
+        <span>Gratis untuk mulai berbagi</span>
+      </div>
+    </div>
+    <div class = "hero-right-content">
+      <img src="{% static 'img/hero-landing-page.png' %}" alt="" width="520" height="420">
+    </div>
+  </section>
+{% endblock %}

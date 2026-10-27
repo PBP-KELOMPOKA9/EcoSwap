@@ -1,0 +1,411 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+
+.ulasan-container { 
+    max-width: 900px; 
+    margin: 0 auto; 
+    padding: 20px 40px; 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    color: #222; 
+}
+.header-title { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    margin-bottom: 40px; 
+}
+.header-title a { 
+    text-decoration: none; 
+    color: #1a2b3c; 
+    font-size: 28px; 
+    font-weight: 700; 
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+}
+
+.stats-container { 
+    display: flex; 
+    gap: 60px; 
+    margin-bottom: 40px; 
+    align-items: center; 
+    justify-content: space-between; 
+}
+.bars-section { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+}
+.bar-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #555; 
+}
+.bar-track { flex: 1; 
+    height: 8px; 
+    background: #eaeee9; 
+    border-radius: 10px; 
+    overflow: hidden; 
+}
+.bar-fill { 
+    height: 100%; 
+    background: #85a985; 
+    border-radius: 10px; 
+    width: 0%; 
+    transition: width 1s ease-out; 
+}
+.review-count-text { 
+    width: 80px; 
+    text-align: right; 
+    color: #888; 
+    font-size: 13px; 
+    font-weight: 400; 
+}
+
+.avg-section { 
+    background: #f4f7f4; 
+    padding: 40px 60px; 
+    border-radius: 16px; 
+    text-align: center; 
+    min-width: 250px; 
+}
+.avg-score { 
+    font-size: 64px; 
+    font-weight: 700; 
+    color: #1a2b3c; 
+    margin: 0 0 5px 0; 
+    line-height: 1; 
+}
+.avg-stars { 
+    color: #85a985; 
+    font-size: 28px; 
+    margin-bottom: 5px; 
+    letter-spacing: 2px; 
+}
+
+.review-card { 
+    padding: 30px 0; 
+    border-bottom: 1px solid #eaeaea; 
+}
+.review-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 15px; 
+}
+.user-profile { 
+    display: flex; 
+    align-items: 
+    center; gap: 15px; 
+}
+.avatar { 
+    width: 45px; 
+    height: 45px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    background: #e0e0e0; 
+}
+.user-info strong { 
+    display: block; 
+    font-size: 16px; 
+    font-weight: 700; 
+    color: #1a2b3c; 
+}
+.user-info small { 
+    color: #888; 
+    font-size: 13px; 
+    margin-top: 3px; 
+    display: block; 
+}
+
+.review-stars-actions { 
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+}
+.review-actions a { 
+    font-size: 13px; 
+    color: #666; 
+    text-decoration: none; 
+}
+.review-actions a:hover { 
+    color: #d9534f; 
+}
+.stars-right { 
+    color: #85a985; 
+    font-size: 18px; 
+    letter-spacing: 1px; 
+}
+
+.review-text { 
+    font-size: 15px; 
+    color: #444; 
+    line-height: 1.6; 
+    margin-bottom: 15px; 
+}
+
+.review-images { 
+    display: flex; 
+    gap: 15px; 
+    margin-bottom: 10px; 
+}
+.review-images img { 
+    width: 80px; 
+    height: 80px; 
+    object-fit: cover; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    border: 1px solid #eee; 
+}
+.review-images img:hover { 
+    opacity: 0.8; 
+}
+
+.btn-like { 
+    background: none; 
+    border: none; 
+    color: #555; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    font-size: 14px; 
+    font-weight: 600; 
+    float: right; 
+    padding: 5px 0; 
+}
+.btn-like svg { 
+    width: 18px; 
+    height: 18px; 
+    fill: currentColor; 
+}
+.btn-like.liked { 
+    color: #1a2b3c; 
+}
+
+.fab-container { 
+    position: fixed; 
+    position: fixed; 
+    right: 100px; 
+    bottom: 28px; 
+    z-index: 100; 
+}
+.fab { 
+    display: flex; 
+    align-items: center; 
+    background-color: #85a985; 
+    color: white; 
+    border-radius: 50px; 
+    padding: 0 20px; 
+    cursor: pointer; 
+    box-shadow: 0 8px 24px rgba(133, 169, 133, 0.4); 
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+    overflow: hidden; 
+    height: 60px; 
+    width: 60px; 
+    box-sizing: border-box; 
+    flex-direction: row-reverse; 
+    justify-content: flex-start; 
+}
+.fab svg { 
+    min-width: 24px; 
+    height: 24px; 
+    fill: #1a2b3c; 
+    margin-left: -2px; 
+}
+.fab-text { 
+        max-width: 0; 
+        opacity: 0; 
+        white-space: nowrap; 
+        transition: max-width 0.3s ease, opacity 0.3s ease, margin-right 0.3s ease; 
+        font-weight: 700; 
+        font-size: 16px; 
+        color: #1a2b3c; 
+        margin-right: 0; 
+        overflow: hidden; 
+    }
+.fab:hover { 
+    width: 230px; 
+}
+.fab:hover .fab-text { 
+        max-width: 160px; /* Angka pasti agar CSS bisa menghitung animasinya */
+        opacity: 1; 
+        margin-right: 15px; 
+    }
+
+.modal-overlay { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    display: none; 
+    justify-content: center; 
+    align-items: center;
+    z-index: 1000; 
+    backdrop-filter: blur(4px); 
+}
+.modal-content { 
+    background: white; 
+    padding: 40px; 
+    border-radius: 24px; 
+    width: 90%; 
+    max-width: 550px; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
+}
+.modal-title { 
+    text-align: center; 
+    font-size: 24px; 
+    font-weight: 700; 
+    color: #1a2b3c; 
+    margin-bottom: 5px; 
+}
+.modal-subtitle { 
+    text-align: center; 
+    color: #666; 
+    font-size: 15px; 
+    margin-bottom: 20px; 
+    font-weight: 600; 
+}
+
+.star-rating { 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+    margin: 30px 0; 
+    flex-direction: row-reverse; 
+}
+.star-rating input { 
+    display: none; 
+}
+.star-rating label { 
+    font-size: 50px; 
+    color: #e0e0e0; 
+    cursor: pointer; 
+    transition: 0.2s; 
+    line-height: 1; 
+}
+.star-rating label:hover, .star-rating label:hover ~ label, .star-rating input:checked ~ label { 
+    color: #85a985; 
+}
+
+.form-label { 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #333; 
+    margin-bottom: 8px; 
+    display: block; 
+}
+.form-textarea { 
+    width: 100%; 
+    height: 120px; 
+    border-radius: 12px; 
+    border: 1px solid #ddd; 
+    padding: 15px; 
+    margin-bottom: 20px; 
+    box-sizing: border-box; 
+    font-family: inherit; 
+    font-size: 14px; 
+    resize: none; 
+}
+.form-textarea:focus { 
+    outline: none; 
+    border-color: #85a985; 
+}
+
+.upload-box { 
+    border: 2px dashed #b5cbb5; 
+    padding: 30px 20px; 
+    text-align: center; 
+    border-radius: 16px; 
+    background: #fbfcfb; 
+    margin-bottom: 30px; 
+    transition: 0.2s; 
+}
+.upload-box:hover { 
+    background: #f4f7f4; 
+    border-color: #85a985; 
+}
+
+.modal-actions { 
+    display: flex; 
+    gap: 20px; 
+}
+.btn-batal { 
+    flex: 1; 
+    padding: 14px; 
+    border-radius: 12px; 
+    border: none; 
+    background: #eee; 
+    color: #555; 
+    cursor: pointer; 
+    font-weight: 700; 
+    font-size: 16px; 
+    transition: 0.2s; 
+}
+.btn-batal:hover { 
+    background: #e0e0e0; 
+}
+.btn-unggah { 
+    flex: 1; 
+    padding: 14px; 
+    border-radius: 12px; 
+    border: none; 
+    background: #85a985; 
+    color: white; 
+    cursor: pointer; 
+    font-weight: 700; 
+    font-size: 16px; 
+    transition: 0.2s; 
+}
+.btn-unggah:hover { 
+    background: #759775; 
+}
+
+.modal-content.img-preview-content { 
+    max-width: 800px; 
+    background: transparent; 
+    padding: 0; 
+    text-align: center; 
+    box-shadow: none; 
+}
+.modal-content.img-preview-content img { 
+    max-width: 100%; 
+    max-height: 85vh; 
+    border-radius: 12px; 
+}
+
+
+/* ================= RESPONSIVE DESIGN (Layar Kecil / Mobile) ================= */
+@media (max-width: 768px) {
+    .stats-container { 
+        flex-direction: column-reverse; 
+        gap: 25px; 
+    }
+    
+    .avg-section { 
+        width: 100%; 
+        padding: 20px; 
+        min-width: unset; 
+        box-sizing: border-box; 
+    }
+    .avg-score { 
+        font-size: 48px; 
+    }
+    .avg-stars { 
+        font-size: 22px; 
+    }
+    
+    .bars-section { 
+        width: 100%; 
+    }
+    
+    .ulasan-container { 
+        padding: 15px 20px; 
+    }
+}
