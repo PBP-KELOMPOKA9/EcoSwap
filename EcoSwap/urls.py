@@ -48,6 +48,7 @@ urlpatterns = [
 
     # Ulasan
     path('ulasan/', include('ulasan.urls')),
+    path('lokasi/', include('lokasi.urls')),
 ]
 
 if settings.DEBUG:

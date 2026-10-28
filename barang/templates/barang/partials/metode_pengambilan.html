@@ -1,22 +1,32 @@
-{% comment %}
-  TODO (Modul 3 · Lokasi & Metode Pengambilan):
-  Ganti isi file ini dengan data metode pengambilan barang dari modul Lokasi.
-  Variabel yang tersedia di sini: barang.
-{% endcomment %}
 <h2 class="info__h">Metode pengambilan</h2>
 <div class="pickup">
+  {% if barang.bisa_cod %}
   <div class="pickup__item">
-    <span class="pickup__num">01</span>
+    <span class="pickup__num">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
+    </span>
     <div>
-      <p class="pickup__title">Ketemuan langsung</p>
-      <p class="pickup__sub">{{ barang.lokasi|default:"Area sekitar kampus" }}</p>
+      <p class="pickup__title">Ketemuan Langsung (COD)</p>
+      <p class="pickup__sub">
+        {% if barang.lokasi %}
+          <strong>{{ barang.lokasi.nama_tempat }}</strong>{% if barang.lokasi.alamat_lengkap %} ({{ barang.lokasi.alamat_lengkap }}){% endif %}
+        {% else %}
+          Area sekitar kampus
+        {% endif %}
+      </p>
     </div>
   </div>
+  {% endif %}
+
+  {% if barang.bisa_kurir %}
   <div class="pickup__item">
-    <span class="pickup__num">02</span>
+    <span class="pickup__num">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+    </span>
     <div>
-      <p class="pickup__title">Kirim via kurir</p>
-      <p class="pickup__sub">JNE / JNT, ongkir ditanggung pembeli</p>
+      <p class="pickup__title">Kirim via Kurir</p>
+      <p class="pickup__sub">Pengiriman via ekspedisi (JNE / J&T / GoSend), ongkir ditanggung pembeli.</p>
     </div>
   </div>
+  {% endif %}
 </div>
