@@ -241,6 +241,8 @@ def edit(request, pk):
                 )
                 barang.lokasi = lokasi_obj
             barang.save()
+            # commit=False tidak menyimpan foto, jadi foto baru/dihapus diproses di sini.
+            form.simpan_foto(barang)
 
             messages.success(request, 'Perubahan berhasil disimpan.')
             return redirect(barang)
