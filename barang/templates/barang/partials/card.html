@@ -20,10 +20,15 @@
     <p class="card__price">{{ barang|harga_label }}</p>
     <div class="card__foot">
       <span class="chip-kondisi">{{ barang.get_kondisi_display }}</span>
-      {% if barang.lokasi %}
-      <span class="card__loc">
+      {% if barang.bisa_cod and barang.lokasi %}
+      <span class="card__loc" title="{{ barang.lokasi }}{% if barang.bisa_kurir %} & Kirim Kurir{% endif %}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.8-6.5-11a6.5 6.5 0 0 1 13 0c0 5.2-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>
-        <span>{{ barang.lokasi }}</span>
+        <span>{{ barang.lokasi }}{% if barang.bisa_kurir %} + 📦{% endif %}</span>
+      </span>
+      {% elif barang.bisa_kurir %}
+      <span class="card__loc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <span>Kirim Kurir</span>
       </span>
       {% endif %}
     </div>

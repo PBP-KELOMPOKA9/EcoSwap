@@ -29,6 +29,11 @@ class Barang(models.Model):
         DIPESAN = 'dipesan', 'Dipesan'
         SELESAI = 'selesai', 'Selesai'
 
+    class MetodePengambilan(models.TextChoices):
+        COD = 'cod', 'Ketemuan Langsung'
+        KURIR = 'kurir', 'Kirim via Kurir'
+        KEDUANYA = 'keduanya', 'COD & Kirim Kurir'
+
     pemilik = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -43,7 +48,8 @@ class Barang(models.Model):
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.TERSEDIA
     )
-    lokasi = models.CharField(max_length=100, blank=True)
+    metode_pengambilan = models.CharField(max_length=10, choices=MetodePengambilan.choices, default=MetodePengambilan.COD)
+    lokasi = models.ForeignKey('lokasi.Lokasi', on_delete=models.SET_NULL, null=True, blank=True)
     jumlah_dilihat = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -72,6 +78,12 @@ class Barang(models.Model):
         fotos = list(self.foto.all())
         return fotos[0] if fotos else None
 
+    @property
+    def bisa_cod(self):
+        return self.metode_pengambilan in ['cod', 'keduanya']
+    @property
+    def bisa_kurir(self):
+        return self.metode_pengambilan in ['kurir', 'keduanya']
 
 class FotoBarang(models.Model):
     barang = models.ForeignKey(Barang, on_delete=models.CASCADE, related_name='foto')

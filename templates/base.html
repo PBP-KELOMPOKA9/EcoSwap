@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">  <link rel="stylesheet" href="{% static 'css/ecoswap.css' %}">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -30,8 +31,7 @@
   {% include "partials/footer.html" %}
 
   {% if user.is_authenticated %}
-  {# TODO (Modul 5 · Chat): arahkan href ke halaman daftar chat. #}
-  <a href="#" class="chat-fab" id="chat-fab" aria-label="Buka chat">
+  <a href="{% url 'chat:daftar' %}" class="chat-fab" id="chat-fab" aria-label="Buka chat">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 10.5h7M8.5 14h4.5"/></svg>
   </a>
   {% endif %}
