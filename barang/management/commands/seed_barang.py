@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from barang.models import Barang
+from lokasi.models import Lokasi
 
 DATA = [
     ('Paket Buku Kuliah Ekonomi', 'buku', 'donasi', 0, 'bekas_baik', 'Beji, Depok',
@@ -57,6 +58,17 @@ DATA = [
      'Kasur lipat busa tebal 7 cm, sarung bisa dilepas dan dicuci.'),
 ]
 
+# Titik lokasi dummy di sekitar UI Depok (koordinat perkiraan, cukup untuk peta).
+LOKASI = {
+    'Kukusan, Depok': (-6.3673, 106.8209),
+    'Beji, Depok': (-6.3767, 106.8173),
+    'Margonda, Depok': (-6.3707, 106.8327),
+    'Pondok Cina, Depok': (-6.3687, 106.8317),
+    'Kober, Depok': (-6.3619, 106.8297),
+    'Kutek, Depok': (-6.3567, 106.8292),
+    'Srengseng Sawah': (-6.3527, 106.8236),
+}
+
 USERS = [
     ('aulia', 'Aulia', 'Rahma'),
     ('budi', 'Budi', 'Santoso'),
@@ -93,9 +105,16 @@ class Command(BaseCommand):
         if options.get('pemilik'):
             pemilik_list.append(User.objects.get(username=options['pemilik']))
 
+        lokasi_obj = {}
+        for nama, (lat, lng) in LOKASI.items():
+            lokasi_obj[nama], _ = Lokasi.objects.get_or_create(
+                nama_tempat=nama,
+                defaults={'latitude': lat, 'longitude': lng, 'alamat_lengkap': nama},
+            )
+
         random.seed(42)
         for i, (judul, kategori, tipe, harga, kondisi, lokasi, deskripsi) in enumerate(DATA):
-            Barang.objects.get_or_create(
+            barang, dibuat = Barang.objects.get_or_create(
                 judul=judul,
                 defaults={
                     'pemilik': pemilik_list[i % len(pemilik_list)],
@@ -103,11 +122,15 @@ class Command(BaseCommand):
                     'tipe': tipe,
                     'harga': harga,
                     'kondisi': kondisi,
-                    'lokasi': lokasi,
+                    'lokasi': lokasi_obj[lokasi],
                     'deskripsi': deskripsi,
                     'jumlah_dilihat': random.randint(3, 40),
                 },
             )
+            # Barang lama yang lokasinya terhapus saat migrasi diisi lagi.
+            if not dibuat and barang.lokasi_id is None:
+                barang.lokasi = lokasi_obj[lokasi]
+                barang.save(update_fields=['lokasi'])
 
         self.stdout.write(self.style.SUCCESS(
             f'Selesai. Total barang: {Barang.objects.count()}. '
