@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'profil',
     'barang',
     'ulasan',
+    'chat',
     'lokasi',
 ]
 

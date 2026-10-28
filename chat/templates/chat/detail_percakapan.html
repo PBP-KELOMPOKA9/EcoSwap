@@ -1,0 +1,340 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Messages{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-page">
+    <div class="chat-layout chat-layout--detail">
+        <aside class="chat-sidebar">
+            <div class="chat-sidebar__heading">
+                <h1 class="chat-sidebar__title">
+                    <a href="{% url 'barang:katalog' %}" class="chat-icon-button"
+                        aria-label="Kembali ke katalog">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                    </a>
+                    Messages
+                </h1>
+                <a href="{% url 'chat:daftar' %}" class="chat-icon-button"
+                    aria-label="Daftar pesan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
+                    </svg>
+                </a>
+            </div>
+
+            <label class="chat-search">
+                <span class="visually-hidden">Cari percakapan</span>
+                <input type="search" id="chat-search" placeholder="Cari percakapan...">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="7"/>
+                    <path d="m20 20-4-4"/>
+                </svg>
+            </label>
+
+            <div class="chat-list">
+                {% for item in percakapan_list %}
+                    {% if request.user == item.pembeli %}
+                        {% with lawan=item.penjual %}
+                            <a href="{% url 'chat:detail' item.pk %}"
+                                class="chat-list__item {% if item.pk == percakapan.pk %}is-active{% endif %}"
+                                data-chat-item>
+                                <div class="chat-avatar">{{ lawan.username|first|upper }}</div>
+                                <div class="chat-list__body">
+                                    <div class="chat-list__name">{{ lawan.username }}</div>
+                                    <div class="chat-list__preview">
+                                        {% with terakhir=item.pesan.last %}
+                                            {% if terakhir %}{{ terakhir.isi|truncatechars:55 }}
+                                            {% else %}{{ item.barang.judul }}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% else %}
+                        {% with lawan=item.pembeli %}
+                            <a href="{% url 'chat:detail' item.pk %}"
+                                class="chat-list__item {% if item.pk == percakapan.pk %}is-active{% endif %}"
+                                data-chat-item>
+                                <div class="chat-avatar">{{ lawan.username|first|upper }}</div>
+                                <div class="chat-list__body">
+                                    <div class="chat-list__name">{{ lawan.username }}</div>
+                                    <div class="chat-list__preview">
+                                        {% with terakhir=item.pesan.last %}
+                                            {% if terakhir %}{{ terakhir.isi|truncatechars:55 }}
+                                            {% else %}{{ item.barang.judul }}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </a>
+                        {% endwith %}
+                    {% endif %}
+                {% empty %}
+                    <p class="chat-empty">Belum ada percakapan lainnya.</p>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <section class="chat-room">
+            {% if request.user == percakapan.pembeli %}
+                {% with lawan=percakapan.penjual %}
+                    <header class="chat-room__header">
+                        <a href="{% url 'chat:daftar' %}" class="chat-mobile-back"
+                            aria-label="Kembali ke daftar chat">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                        <div class="chat-avatar">{{ lawan.username|first|upper }}</div>
+                        <div>
+                            <h2 class="chat-room__name">{{ lawan.username }}</h2>
+                            <p class="chat-room__product">{{ percakapan.barang.judul }}</p>
+                        </div>
+                    </header>
+                {% endwith %}
+            {% else %}
+                {% with lawan=percakapan.pembeli %}
+                    <header class="chat-room__header">
+                        <a href="{% url 'chat:daftar' %}" class="chat-mobile-back"
+                            aria-label="Kembali ke daftar chat">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                            </svg>
+                        </a>
+                        <div class="chat-avatar">{{ lawan.username|first|upper }}</div>
+                        <div>
+                            <h2 class="chat-room__name">{{ lawan.username }}</h2>
+                            <p class="chat-room__product">{{ percakapan.barang.judul }}</p>
+                        </div>
+                    </header>
+                {% endwith %}
+            {% endif %}
+
+            <div class="chat-messages" id="chat-messages" data-url="{% url 'chat:ambil_pesan' percakapan.pk %}">
+                {% for pesan in pesan_list %}
+                    <article class="chat-message {% if pesan.pengirim_id == request.user.id %}chat-message--mine{% endif %}"
+                            data-message-id="{{ pesan.pk }}">
+                        <p class="chat-message__text">{{ pesan.isi|linebreaksbr }}</p>
+                        <time datetime="{{ pesan.dibuat_pada|date:'c' }}" class="chat-message__time">
+                            {{ pesan.dibuat_pada|date:"H:i" }}
+                        </time>
+                    </article>
+                {% empty %}
+                    <p class="chat-empty">
+                        Belum ada pesan. Mulai percakapan dengan mengirim pesan di bawah.
+                    </p>
+                {% endfor %}
+            </div>
+
+            {% if error %}
+                <p class="chat-error" role="alert">{{ error }}</p>
+            {% endif %}
+
+            <form method="post" class="chat-compose">
+                {% csrf_token %}
+                <label for="chat-input" class="visually-hidden">Tulis pesan</label>
+                <textarea name="isi" maxlength="2000" rows="1" placeholder="Ketik pesan..." id="chat-input" required></textarea>
+                <button class="chat-send" type="submit" aria-label="Kirim pesan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="m22 2-7 20-4-9-9-4Z"/>
+                        <path d="M22 2 11 13"/>
+                    </svg>
+                </button>
+            </form>
+        </section>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const chatMessages = document.getElementById('chat-messages');
+        
+        if (!chatMessages) {
+            console.error('Elemen #chat-messages tidak ditemukan.');
+            return
+        }
+
+        const pesanUrl = chatMessages.dataset.url;
+        const pesanTampil = new Set();
+
+        // Catat ID pesan yang sudah di halaman
+        chatMessages.querySelectorAll('[data-message-id]').forEach(function (elemen) {
+            pesanTampil.add(String(elemen.dataset.messageId));
+        });
+
+        console.log('Polling chat aktif.');
+        console.log('URL pengambilan pesan:', pesanUrl);
+
+        const chatForm = document.querySelector('.chat-compose');
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = chatForm?.querySelector('.chat-send');
+
+        if (chatForm && chatInput) {
+            chatForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+
+                const isi = chatInput.value.trim();
+
+                if (!isi) {
+                    chatInput.focus();
+                    return;
+                }
+
+                if (chatSend) {
+                    chatSend.disabled = true;
+                }
+
+                try {
+                    const response = await fetch(window.location.href, {
+                        method: 'POST',
+                        headers: {'X-Requested-With': 'XMLHttpRequest'},
+                        body: new FormData(chatForm)
+                    });
+                    
+                    const responseText = await response.text();
+                    let data;
+
+                    try {
+                        data = JSON.parse(responseText);
+                    } catch (error) {
+                        console.error('Respons Django bukan JSON:', responseText);
+                        throw new Error('Respons server bukan JSON. HTTP ${response.status}');
+                    }
+
+                    console.log('Status pengiriman:', response.status);
+                    console.log('Respons Django:', data);
+
+                    if (!response.ok) {
+                        console.error(data.error || 'Pesan gagal dikirim.');
+                        alert(data.error || 'Pesan gagal dikirim.');
+                        return;
+                    }
+
+                    const pesan = data.pesan;
+
+                    // Tambahkan pesan langsung tanpa menunggu polling
+                    if (!pesanTampil.has(String(pesan.id))) {
+                        const placeholder = chatMessages.querySelector('.chat-empty');
+
+                        if (placeholder) {
+                            placeholder.remove();
+                        }
+
+                        const artikel = document.createElement('article');
+                        artikel.classList.add('chat-message', 'chat-message--mine');
+                        artikel.dataset.messageId = pesan.id;
+
+                        const teks = document.createElement('p');
+                        teks.classList.add('chat-message__text');
+                        teks.textContent = pesan.isi;
+
+                        const waktu = document.createElement('time');
+                        waktu.classList.add('chat-message__time');
+                        waktu.textContent = pesan.waktu;
+
+                        artikel.appendChild(teks);
+                        artikel.appendChild(waktu);
+                        chatMessages.appendChild(artikel);
+
+                        pesanTampil.add(String(pesan.id));
+                    }
+
+                    chatInput.value = '';
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    chatInput.focus();
+
+                } catch (error) {
+                    console.error('Gagal mengirim pesan:', error);
+                    alert(error.message);
+                } finally {
+                    if (chatSend) {
+                        chatSend.disabled = false;
+                    }
+                }
+            });
+        }
+
+        async function ambilPesan() {
+            try {
+                const respone = await fetch(pesanUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    cache: 'no-store'
+                });
+
+                if (!respone.ok) {
+                    console.error('Gagal mengamgil pesan. Status:', respone.status);
+                    return;
+                }
+
+                const data = await respone.json();
+
+                console.log('Polling berhasil. Jumlah pesan:', data.pesan.length);
+
+                // Hilangkan tulisan "Belum ada pesan" jika pesan sudah tersedia
+                const placeholder = chatMessages.querySelector('.chat-empty');
+
+                if (placeholder && data.pesan.length > 0) {
+                    placeholder.remove();
+                }
+
+                data.pesan.forEach(function (pesan) {
+                    if (pesanTampil.has(String(pesan.id))) {
+                        return;
+                    }
+
+                    const artikel = document.createElement('article');
+                    artikel.classList.add('chat-message');
+
+                    if (pesan.milik_saya) {
+                        artikel.classList.add('chat-message--mine');
+                    }
+
+                    artikel.dataset.messageId = pesan.id;
+
+                    const teks = document.createElement('p');
+                    teks.classList.add('chat-message__text');
+                    teks.textContent = pesan.isi;
+
+                    const waktu = document.createElement('time');
+                    waktu.classList.add('chat-message__time');
+                    waktu.textContent = pesan.waktu;
+
+                    artikel.appendChild(teks);
+                    artikel.appendChild(waktu);
+                    chatMessages.appendChild(artikel);
+
+                    pesanTampil.add(String(pesan.id));
+                });
+
+            } catch (error) {
+                console.error('Terjadi kesalahan saat mengambil pesan:', error);
+            }
+        }
+
+        ambilPesan()
+        setInterval(ambilPesan, 2000);
+    });
+</script>
+
+{% endblock %}
