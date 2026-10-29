@@ -19,13 +19,14 @@ def home(request):
     # Ambil filter kategori jika ada diklik
     kategori_filter = request.GET.get('kategori', '')
     
+    # Inisialisasi barang yang akan ditampilkan
     barang_qs = (
         Barang.objects.filter(status=Barang.Status.TERSEDIA)
-        .select_related('pemilik')
+        .select_related('lokasi') # Sekalian ambil lokasi dan foto
         .prefetch_related('foto')
     )
     
-    if kategori_filter in Barang.Kategori.values:
+    if kategori_filter in Barang.Kategori.values: # Nambah kategori
         barang_qs = barang_qs.filter(kategori=kategori_filter)
         
     # Ambil 8 barang untuk tampilan 2 baris x 4 kolom
