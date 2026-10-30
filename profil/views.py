@@ -230,32 +230,40 @@ def ajukan_transaksi_view(request, barang_id):
     # cari pemilik barang secara fleksibel
     pemilik_barang = getattr(barang, 'penjual', getattr(barang, 'pemilik', getattr(barang, 'user', None)))
 
+    # ambil nama barang untuk keperluan notifikasi pesan
+    nama_barang = getattr(barang, 'nama', getattr(barang, 'nama_barang', getattr(barang, 'judul', 'barang')))
+
     # validasi: pemilik dilarang mengajukan transaksi ke barang miliknya sendiri
     if pemilik_barang == request.user:
         messages.error(request, 'kamu tidak bisa mengajukan barter ke barang milikmu sendiri!')
         return redirect('manajemen_transaksi')
 
     # validasi: cegah pengajuan ganda jika transaksi sebelumnya masih berjalan
-    transaksi_berjalan = Transaksi.objects.filter(barang=barang, pemohon=request.user, status__in=['diajukan', 'diterima']).exists()
+    transaksi_berjalan = Transaksi.objects.filter(
+        barang=barang, 
+        pemohon=request.user, 
+        status__in=['diajukan', 'diterima']
+    ).exists()
     if transaksi_berjalan:
-        messages.error(request, 'kamu sudah memiliki transaksi aktif untuk barang ini!')
+        messages.error(request, f'kamu sudah memiliki transaksi aktif untuk barang "{nama_barang}"!')
         return redirect('manajemen_transaksi')
 
-    if request.method == 'POST':
-        pesan = request.POST.get('pesan', '').strip()
+    # ambil pesan penawaran jika ada, atau gunakan pesan ramah bawaan
+    pesan = request.POST.get('pesan', request.GET.get('pesan', '')).strip()
+    if not pesan:
+        pesan = f'halo! saya berminat untuk barter/mengambil barang "{nama_barang}".'
 
-        Transaksi.objects.create(
-            barang=barang,
-            pemohon=request.user,
-            pemilik=pemilik_barang,
-            pesan=pesan,
-            status='diajukan'
-        )
+    # buat data transaksi baru secara langsung (mendukung tombol link get maupun form post)
+    Transaksi.objects.create(
+        barang=barang,
+        pemohon=request.user,
+        pemilik=pemilik_barang,
+        pesan=pesan,
+        status='diajukan'
+    )
 
-        messages.success(request, 'pengajuan barter berhasil dikirim! silakan tunggu respon pemilik barang.')
-        return redirect('manajemen_transaksi')
-
-    return render(request, 'ajukan_transaksi.html', {'barang': barang, 'pemilik': pemilik_barang})
+    messages.success(request, f'berhasil mengajukan minat untuk "{nama_barang}"! transaksi kamu sudah tercatat di sini.')
+    return redirect('manajemen_transaksi')
 
 # fungsi untuk mengubah status transaksi (terima, tolak, batalkan, selesai)
 @login_required(login_url='/login/')
@@ -288,7 +296,7 @@ def ubah_status_transaksi_view(request, transaksi_id, aksi):
 
     return redirect('manajemen_transaksi')
 
-# fungsi untuk mengembalikan data profil pengguna dalam format json (persiapan flutter pbp)
+# fungsi untuk mengembalikan data profil pengguna dalam format json 
 @login_required(login_url='/login/')
 def profile_json_view(request):
     user = request.user
