@@ -79,7 +79,7 @@
           <p class="minat__title">Pengajuan minat</p>
           <p class="minat__sub">Lihat siapa saja yang tertarik dengan barang ini.</p>
         </div>
-        <a href="#" class="btn btn--lime">Lihat Pengajuan</a>
+        <a href="{% url 'manajemen_transaksi' %}" class="btn btn--lime">Lihat Pengajuan</a>
       </div>
 
       <div class="actions">
@@ -104,13 +104,13 @@
             {% if pemilik_rating %}{{ pemilik_rating }} ({{ pemilik_total_ulasan }} ulasan){% else %}Belum ada ulasan{% endif %}
           </p>
         </div>
-        <a href="#" class="link-green">Lihat Profil</a>
+        <a href="{% url 'profile' %}" class="link-green">Lihat Profil</a>
       </div>
 
       <div class="actions">
         {# TODO (Modul 2 · Transaksi): ganti action ke URL ajukan minat. #}
         {% if barang.is_tersedia %}
-        <a href="#" class="btn btn--primary btn--lg">Ajukan Minat</a>
+        <a href="{% url 'ajukan_transaksi' barang.pk %}" class="btn btn--primary btn--lg">Ajukan Minat</a>
         {% else %}
         <button type="button" class="btn btn--primary btn--lg" disabled>{{ barang.get_status_display }}</button>
         {% endif %}

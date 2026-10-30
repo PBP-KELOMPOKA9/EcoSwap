@@ -3,16 +3,6 @@ URL configuration for EcoSwap project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.conf import settings
 from django.conf.urls.static import static
@@ -21,7 +11,8 @@ from django.urls import include, path
 from profil.views import (
     login_view, register_view, logout_view, profile_view,
     change_password_view, reset_password_view,
-    manajemen_transaksi_view, ajukan_transaksi_view, ubah_status_transaksi_view,  profile_json_view,
+    manajemen_transaksi_view, ajukan_transaksi_view, ubah_status_transaksi_view,
+    profile_json_view,
 )
 
 urlpatterns = [
@@ -30,10 +21,10 @@ urlpatterns = [
     # halaman beranda dan katalog buatan najwa
     path('', include('barang.urls')),
 
-    # Fitur chat dan notifikasi
+    # fitur chat dan notifikasi
     path('chat/', include('chat.urls')),
 
-    # Halaman login, register, logout, dan profil
+    # halaman login, register, logout, dan profil
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
     path('logout/', logout_view, name='logout'),
@@ -42,12 +33,12 @@ urlpatterns = [
     path('profil/reset-password/', reset_password_view, name='reset_password'),
     path('profil/json/', profile_json_view, name='profile_json'),
 
-    # Manajemen transaksi dan barter
+    # manajemen transaksi dan barter
     path('transaksi/', manajemen_transaksi_view, name='manajemen_transaksi'),
     path('transaksi/ajukan/<int:barang_id>/', ajukan_transaksi_view, name='ajukan_transaksi'),
-    path('transaksi/status/<int:transaksi_id>/<str:aksi>', ubah_status_transaksi_view, name='ubah_status_transaksi'),
+    path('transaksi/status/<int:transaksi_id>/<str:aksi>/', ubah_status_transaksi_view, name='ubah_status_transaksi'),
 
-    # Ulasan
+    # ulasan dan lokasi
     path('ulasan/', include('ulasan.urls')),
     path('lokasi/', include('lokasi.urls')),
 ]
