@@ -21,7 +21,7 @@ from django.urls import include, path
 from profil.views import (
     login_view, register_view, logout_view, profile_view,
     change_password_view, reset_password_view,
-    manajemen_transaksi_view, ajukan_transaksi_view, ubah_status_transaksi_view
+    manajemen_transaksi_view, ajukan_transaksi_view, ubah_status_transaksi_view,  profile_json_view,
 )
 
 urlpatterns = [

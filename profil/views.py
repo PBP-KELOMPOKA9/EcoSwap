@@ -1,5 +1,6 @@
 import re
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -216,7 +217,7 @@ def manajemen_transaksi_view(request):
         'menunggu_respon': menunggu_respon,
         'siap_barter': siap_barter,
         'selesai_barter': selesai_barter,
-        'navbar aktif' : transaksi,
+        'nav_aktif': 'transaksi',
     }
     return render(request, 'transaksi.html', context)
 
@@ -286,3 +287,19 @@ def ubah_status_transaksi_view(request, transaksi_id, aksi):
         messages.success(request, 'transaksi barter selesai! terima kasih sudah mendukung gerakan ramah lingkungan.')
 
     return redirect('manajemen_transaksi')
+
+# fungsi untuk mengembalikan data profil pengguna dalam format json (persiapan flutter pbp)
+@login_required(login_url='/login/')
+def profile_json_view(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+
+    data = {
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'nomor_telepon': profile.nomor_telepon if profile else '',
+        'domisili': profile.domisili if profile else '',
+        'bio': profile.bio if profile else '',
+    }
+    return JsonResponse(data)

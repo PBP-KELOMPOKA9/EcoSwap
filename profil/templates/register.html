@@ -114,7 +114,7 @@
                             </svg>
                         </button>
                     </div>
-                    <!-- syarat password -->
+                    <!-- teks petunjuk syarat kekuatan password -->
                     <p class="text-[12px] text-[#5F6B7A] mt-1">Gunakan minimal 8 karakter dengan variasi kombinasi huruf dan angka.</p>
                 </div>
 
@@ -148,7 +148,7 @@
         
     </div>
 
-    <!-- area kanan: hero banner dengan gradasi hidup selaras dengan login -->
+    <!-- area kanan: hero banner hijau dengan slider otomatis 5 detik dan tombol sign in -->
     <div class="hidden lg:flex lg:w-1/2 hero-eco-gradient relative flex-col justify-between p-10 lg:p-14 text-[#F5F6EC] h-full overflow-hidden">
         
         <!-- ornamen cahaya ambient gradasi halus -->
@@ -174,9 +174,9 @@
             </a>
         </div>
 
-        <!-- pesan sambutan selamat datang di tengah dengan slider -->
+        <!-- pesan sambutan selamat datang di tengah dengan carousel slider -->
         <div class="flex flex-col items-center text-center max-w-lg mx-auto z-10 my-auto">
-            <!-- label penanda ekosistem kampus -->
+            <!-- badge ecogreen kampus -->
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 border border-white/20 text-[#F5F6EC] text-xs font-bold tracking-widest uppercase mb-5 backdrop-blur-sm">
                 <span> EcoSwap</span>
             </div>
@@ -205,5 +205,78 @@
                 </p>
             </div>
 
-            <!-- tombol ajakan sign in putih -->
-            <a href="/login/" class="bg-[#F5F6EC] text-[#006B3F] hover:bg-white font-bold px-12 py-3.5 rounded-full shadow-md transition duration-15
+            <!-- tombol ajakan sign in putih (mengantar kembali ke halaman login) -->
+            <a href="/login/" class="bg-[#F5F6EC] text-[#006B3F] hover:bg-white font-bold px-12 py-3.5 rounded-full shadow-md transition duration-150 text-base tracking-widest uppercase">
+                SIGN IN
+            </a>
+        </div>
+
+        <!-- penunjuk navigasi slider di bagian bawah yang aktif diklik -->
+        <div class="flex justify-center items-center space-x-3 text-white/80 text-sm z-10 pb-2">
+            <button type="button" onclick="changeSlide(-1)" class="cursor-pointer hover:text-white px-1">&lt;</button>
+            <button type="button" onclick="goToSlide(0)" id="dot-0" class="w-3.5 h-3.5 bg-[#F5F6EC] rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="goToSlide(1)" id="dot-1" class="w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="goToSlide(2)" id="dot-2" class="w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer"></button>
+            <button type="button" onclick="changeSlide(1)" class="cursor-pointer hover:text-white px-1">&gt;</button>
+        </div>
+
+    </div>
+
+    <!-- script interaktif register: toggle password, slider 5 detik, dan submit loading -->
+    <script>
+        // fungsi untuk intip / sembunyikan kata sandi
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>';
+            } else {
+                input.type = 'password';
+                icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            }
+        }
+
+        // fungsi kontrol slider carousel register
+        let currentSlide = 0;
+        const totalSlides = 3;
+
+        function updateSlide() {
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById('slide-' + i);
+                const dot = document.getElementById('dot-' + i);
+                if (slide && dot) {
+                    if (i === currentSlide) {
+                        slide.classList.remove('hidden');
+                        dot.className = 'w-3.5 h-3.5 bg-[#F5F6EC] rounded-full transition-all cursor-pointer';
+                    } else {
+                        slide.classList.add('hidden');
+                        dot.className = 'w-2.5 h-2.5 bg-white/40 rounded-full transition-all cursor-pointer';
+                    }
+                }
+            }
+        }
+
+        function changeSlide(direction) {
+            currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+            updateSlide();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        // otomatis geser slide tiap 5 detik
+        setInterval(() => { changeSlide(1); }, 5000);
+
+        // efek responsif tombol saat form dikirim
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            const btn = document.getElementById('regSubmitBtn');
+            btn.innerHTML = '<span>Mendaftarkan...</span>';
+            btn.classList.add('opacity-80', 'cursor-wait');
+        });
+    </script>
+
+</body>
+</html>
