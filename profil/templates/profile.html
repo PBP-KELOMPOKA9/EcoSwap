@@ -4,7 +4,18 @@
 {% block title %}Profil Saya - EcoSwap{% endblock %}
 
 {% block content %}
-<main class="page" style="background: var(--cream); min-height: 80vh; padding: 48px 0 80px;">
+<style>
+  /* garis pembatas halus dan warna footer persis seperti halaman transaksi */
+  .profile-wrapper {
+    border-bottom: 1px solid var(--line, #DCE2CF) !important;
+  }
+  footer, .footer, .site-footer {
+    background-color: var(--cream, #F5F6EC) !important;
+    border-top: 1px solid var(--line, #DCE2CF) !important;
+  }
+</style>
+
+<main class="page profile-wrapper" style="background: var(--cream, #F5F6EC); min-height: 80vh; padding: 48px 0 80px; border-bottom: 1px solid var(--line, #DCE2CF);">
   <div class="container">
     
     <!-- judul halaman dan deskripsi universal -->
