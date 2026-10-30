@@ -23,10 +23,37 @@
         </div>
         
         <div class="avg-section">
-            <p class="avg-score">{{ rata_rata }}</p>
-            <div class="avg-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
-            <p style="margin:0; font-size:14px; color:#666; font-weight: 600;">{{ total_ulasan }} ulasan</p>
+        <!-- Tambahkan ID agar angkanya bisa ditangkap JS -->
+        <p class="avg-score" id="angka-rata-rata">{{ rata_rata }}</p>
+        
+        <!-- Trik Bintang Bertumpuk -->
+        <div class="avg-stars" style="position: relative; display: inline-block; color: #e5e7eb; font-size: 24px;">
+            <!-- Lapisan Dasar: 5 Bintang Abu-abu -->
+            <span>&#9733; &#9733; &#9733; &#9733; &#9733;</span>
+            
+            <!-- Lapisan Atas: 5 Bintang Hijau yang lebarnya dinamis -->
+            <div id="bintang-hijau" style="position: absolute; top: 0; left: 0; white-space: nowrap; overflow: hidden; color: #7b9c7b; width: 0%;">
+                <span>&#9733; &#9733; &#9733; &#9733; &#9733;</span>
+            </div>
         </div>
+        
+        <p style="margin:0; font-size:14px; color:#666; font-weight: 600;">{{ total_ulasan }} ulasan</p>
+    </div>
+
+    <!-- Script untuk menghitung nilai koma -->
+    <script>
+        // 1. Ambil teks angka dari HTML (misal "4,5" atau "0")
+        let teksAngka = document.getElementById("angka-rata-rata").innerText;
+        
+        // 2. Ubah format koma jadi titik agar JavaScript bisa menghitungnya (menjadi "4.5")
+        let angkaDesimal = parseFloat(teksAngka.replace(',', '.'));
+        
+        // 3. Hitung persentasenya (Misal: 4.5 / 5 * 100 = 90%)
+        let persentase = (angkaDesimal / 5) * 100;
+        
+        // 4. Ubah lebar lapisan bintang hijau sesuai persentase (Jika NaN/Kosong, kembalikan 0)
+        document.getElementById("bintang-hijau").style.width = (persentase || 0) + "%";
+    </script>
     </div>
 
     <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 40px 0 10px 0;">
