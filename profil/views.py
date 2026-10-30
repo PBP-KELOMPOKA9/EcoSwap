@@ -6,6 +6,21 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import UserProfile, Transaksi
 
+# fungsi bantuan untuk memvalidasi kekuatan kata sandi (minimal 8 karakter dan bervariasi/unik)
+def validasi_kata_sandi(password, username=None):
+    if len(password) < 8:
+        return False, 'kata sandi minimal 8 karakter!'
+    if password.isnumeric():
+        return False, 'kata sandi tidak boleh hanya berupa angka! gunakan kombinasi huruf dan angka.'
+    if password.isalpha():
+        return False, 'kata sandi harus mengandung kombinasi angka agar unik dan kuat!'
+    # cek variasi karakter agar tidak mengulang satu karakter yang sama
+    if len(set(password)) < 4:
+        return False, 'kata sandi terlalu sederhana! gunakan karakter yang lebih unik dan bervariasi.'
+    if username and password.lower() == username.lower():
+        return False, 'kata sandi tidak boleh sama dengan username!'
+    return True, ''
+
 # fungsi untuk memproses login pengguna
 def login_view(request):
     if request.method == 'POST':
@@ -37,14 +52,20 @@ def login_view(request):
 # fungsi untuk memproses pendaftaran akun baru
 def register_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
 
         # validasi: cek apakah konfirmasi password cocok
         if password != confirm_password:
             messages.error(request, 'password dan konfirmasi password tidak cocok!')
+            return render(request, 'register.html')
+
+        # validasi: cek syarat kata sandi minimal 8 karakter dan unik
+        is_valid, error_msg = validasi_kata_sandi(password, username=username)
+        if not is_valid:
+            messages.error(request, error_msg)
             return render(request, 'register.html')
 
         # validasi: cek apakah username sudah terpakai
@@ -124,9 +145,10 @@ def change_password_view(request):
             messages.error(request, 'konfirmasi kata sandi baru tidak cocok!')
             return redirect('profile')
 
-        # validasi: pastikan panjang kata sandi baru minimal 8 karakter
-        if len(new_password) < 8:
-            messages.error(request, 'kata sandi baru minimal 8 karakter!')
+        # validasi: pastikan kata sandi baru memenuhi syarat minimal 8 karakter dan unik
+        is_valid, error_msg = validasi_kata_sandi(new_password, username=request.user.username)
+        if not is_valid:
+            messages.error(request, error_msg)
             return redirect('profile')
 
         # simpan kata sandi baru ke database django
@@ -160,21 +182,22 @@ def reset_password_view(request):
             messages.error(request, 'konfirmasi kata sandi baru tidak cocok!')
             return redirect('login')
 
-        # validasi: pastikan panjang kata sandi minimal 8 karakter
-        if len(new_password) < 8:
-            messages.error(request, 'kata sandi baru minimal 8 karakter!')
+        # validasi: pastikan kata sandi baru minimal 8 karakter dan unik
+        is_valid, error_msg = validasi_kata_sandi(new_password, username=user.username)
+        if not is_valid:
+            messages.error(request, error_msg)
             return redirect('login')
 
-        # perbarui kata sandi pengguna di database
+        # simpan kata sandi baru dan berikan notifikasi sukses
         user.set_password(new_password)
         user.save()
 
-        messages.success(request, 'kata sandi berhasil direset! silakan masuk dengan kata sandi baru.')
+        messages.success(request, 'kata sandi berhasil diatur ulang! silakan masuk dengan kata sandi baru.')
         return redirect('login')
 
     return redirect('login')
 
-# fungsi untuk menampilkan halaman manajemen transaksi barter
+# fungsi untuk menampilkan dasbor daftar transaksi pengguna
 @login_required(login_url='/login/')
 def manajemen_transaksi_view(request):
     permintaan_masuk = Transaksi.objects.filter(pemilik=request.user).order_by('-created_at')
@@ -193,6 +216,7 @@ def manajemen_transaksi_view(request):
         'menunggu_respon': menunggu_respon,
         'siap_barter': siap_barter,
         'selesai_barter': selesai_barter,
+        'navbar aktif' : transaksi,
     }
     return render(request, 'transaksi.html', context)
 
@@ -253,15 +277,12 @@ def ubah_status_transaksi_view(request, transaksi_id, aksi):
     elif aksi == 'batalkan' and transaksi.pemohon == request.user:
         transaksi.status = 'dibatalkan'
         transaksi.save()
-        messages.success(request, 'pengajuan barter berhasil kamu batalkan.')
+        messages.success(request, 'pengajuan barter telah dibatalkan.')
 
-    # aksi tandai selesai: bisa dilakukan jika transaksi sudah diterima
+    # aksi selesai: barang sudah berhasil diserahterimakan
     elif aksi == 'selesai' and (transaksi.pemilik == request.user or transaksi.pemohon == request.user):
         transaksi.status = 'selesai'
         transaksi.save()
-        messages.success(request, 'transaksi barter telah selesai! terima kasih sudah bertukar barang di ecoswap.')
-
-    else:
-        messages.error(request, 'kamu tidak memiliki izin untuk mengubah transaksi ini!')
+        messages.success(request, 'transaksi barter selesai! terima kasih sudah mendukung gerakan ramah lingkungan.')
 
     return redirect('manajemen_transaksi')

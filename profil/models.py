@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 # model data profil tambahan untuk setiap pengguna ecoswap
 class UserProfile(models.Model):
@@ -25,7 +26,7 @@ def buat_profil_otomatis(sender, instance, created, **kwargs):
 @receiver(post_save, sender=User)
 def simpan_profil_otomatis(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
-        instance.profile.save()
+        instance.profile.save() 
 
 # model transaksi barter / ajukan minat antar pengguna ecoswap
 class Transaksi(models.Model):
@@ -45,6 +46,11 @@ class Transaksi(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='diajukan')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def clean(self):
+        super().clean()
+        if self.pemohon == self.pemilik:
+            raise ValidationError('Pemohon tidak boleh sama dengan pemilik barang!')
 
     def __str__(self):
         return f"transaksi {self.barang} ({self.status}) oleh {self.pemohon.username}"

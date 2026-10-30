@@ -40,6 +40,7 @@ urlpatterns = [
     path('profil/', profile_view, name='profile'),
     path('profil/ganti-password/', change_password_view, name='change_password'),
     path('profil/reset-password/', reset_password_view, name='reset_password'),
+    path('profil/json/', profile_json_view, name='profile_json'),
 
     # Manajemen transaksi dan barter
     path('transaksi/', manajemen_transaksi_view, name='manajemen_transaksi'),
