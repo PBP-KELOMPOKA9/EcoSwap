@@ -1066,7 +1066,7 @@ fieldset.field legend { padding: 0; }
 }
 
 /* ============================================================
-   JELAJAHI SECTION (LANDING PAGE)
+   SECTION 2: PREVIEW KATALOG
    ============================================================ */
 .jelajahi-wrap {
   max-width: var(--container);
@@ -1418,7 +1418,9 @@ fieldset.field legend { padding: 0; }
   border-radius: 999px;
 }
 
-/* MAPS */
+/* ============================================================
+   MAPS
+   ============================================================ */
 .search-results-dropdown {
   position: absolute;
   top: 100%;

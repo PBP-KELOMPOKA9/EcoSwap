@@ -4,7 +4,10 @@
 {% block title %}Daftar Transaksi - EcoSwap{% endblock %}
 
 {% block content %}
-<main class="page" style="background: var(--cream); min-height: 90vh; padding: 40px 0 80px;">
+{% url 'barang:katalog' as url_katalog %}
+
+<!-- area transaksi berlatar cream dengan garis pembatas penuh di atas footer -->
+<div class="transaksi-wrapper" style="background: var(--cream, #F5F6EC); padding: 28px 0 36px; border-bottom: 1px solid var(--line, #DCE2CF);">
   <div class="container">
 
     <!-- header halaman -->
@@ -15,8 +18,9 @@
         <p class="page-sub" style="margin-bottom: 0;">Kelola penawaran barang masuk, pantau status pengajuan aktif, dan riwayat serah terima dengan sesama mahasiswa.</p>
       </div>
 
+      <!-- tombol ke katalog barang -->
       <div style="display: flex; gap: 10px;">
-        <a href="/" class="btn-subtle">
+        <a href="{% if url_katalog %}{{ url_katalog }}{% else %}/katalog/{% endif %}" class="btn-subtle">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
           Jelajahi Katalog
         </a>
@@ -34,7 +38,7 @@
     </div>
     {% endif %}
 
-    <!-- 4 status transaksi -->
+    <!-- 4 status transaksi kpi -->
     <div class="kpi-grid">
       <div class="kpi-card" onclick="filterByQuick('semua')">
         <div class="kpi-label">Total Transaksi</div>
@@ -203,7 +207,7 @@
           <h3 class="empty-title">Belum Ada Permintaan Masuk</h3>
           <p class="empty-sub">Saat ada pengguna lain yang mengajukan minat atau penawaran barter pada barang yang kamu tawarkan, daftarnya akan tampil di sini.</p>
           <div style="display: flex; gap: 12px; justify-content: center; margin-top: 22px;">
-            <a href="/" class="btn-action btn-accept">Lihat Katalog Barang</a>
+            <a href="{% if url_katalog %}{{ url_katalog }}{% else %}/katalog/{% endif %}" class="btn-action btn-accept">Lihat Katalog Barang</a>
           </div>
         </div>
       {% endif %}
@@ -300,7 +304,7 @@
           <h3 class="empty-title">Belum Ada Pengajuan Aktif</h3>
           <p class="empty-sub">Kamu belum memiliki pengajuan transaksi yang sedang berjalan. Temukan perlengkapan kuliah atau buku yang kamu butuhkan di katalog EcoSwap.</p>
           <div style="display: flex; gap: 12px; justify-content: center; margin-top: 22px;">
-            <a href="/" class="btn-action btn-accept">Cari Barang di Katalog</a>
+            <a href="{% if url_katalog %}{{ url_katalog }}{% else %}/katalog/{% endif %}" class="btn-action btn-accept">Cari Barang di Katalog</a>
           </div>
         </div>
       {% endif %}
@@ -359,9 +363,22 @@
     </div>
 
   </div>
-</main>
+</div>
 
 <style>
+
+  body, .page, #konten {
+    background-color: var(--cream, #F5F6EC) !important;
+  }
+
+  .transaksi-wrapper {
+    border-bottom: 1px solid var(--line, #DCE2CF) !important;
+  }
+  footer, .footer, .site-footer {
+    background-color: var(--cream, #F5F6EC) !important;
+    border-top: 1px solid var(--line, #DCE2CF) !important;
+  }
+
   .btn-subtle {
     display: inline-flex;
     align-items: center;
@@ -418,9 +435,9 @@
     font-size: 12px;
     color: var(--muted);
   }
-  .kpi-warning .kpi-value { color: #B45309; }
-  .kpi-success .kpi-value { color: var(--green); }
-  .kpi-navy .kpi-value { color: var(--navy); }
+  .kpi-warning .kpi-value { color: var(--yellow-text, #8A6A00); }
+  .kpi-success .kpi-value { color: var(--green, #00804C); }
+  .kpi-navy .kpi-value { color: var(--navy, #001F3F); }
 
   .stepper-banner {
     background: var(--white);
@@ -634,23 +651,24 @@
     justify-content: center;
   }
   .badge-domisili {
-    background: var(--cream);
+    background: var(--mint, #E2F1E5);
+    color: var(--green-dark, #006038);
     padding: 2px 8px;
     border-radius: 999px;
     font-size: 12px;
-    color: var(--navy);
+    font-weight: 600;
     display: inline-flex;
     align-items: center;
     gap: 4px;
   }
   .tx-bubble {
     margin-top: 10px;
-    background: #F7F8F3;
-    border-left: 3px solid var(--green);
+    background: var(--cream-card, #F4F6E3);
+    border-left: 3px solid var(--green, #00804C);
     padding: 8px 12px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm, 8px);
     font-size: 13px;
-    color: #2D3748;
+    color: var(--navy, #001F3F);
     line-height: 1.4;
   }
   .bubble-tag {
@@ -676,11 +694,11 @@
     border-radius: 999px;
     background: currentColor;
   }
-  .status-diajukan { background: #FEF3C7; color: #92400E; }
-  .status-diterima { background: #E2F1E5; color: #006B3F; }
-  .status-ditolak { background: #FCE9E7; color: #C8392F; }
+  .status-diajukan { background: var(--yellow-soft, #FFF3C4); color: var(--yellow-text, #8A6A00); }
+  .status-diterima { background: var(--mint, #E2F1E5); color: var(--green-dark, #006038); }
+  .status-ditolak { background: var(--red-soft, #FCE9E7); color: var(--red-dark, #C8392F); }
   .status-dibatalkan { background: #F3F4F6; color: #6B7280; }
-  .status-selesai { background: #E0F2FE; color: #0369A1; }
+  .status-selesai { background: var(--blue-soft, #E5ECF8); color: var(--blue, #1E488F); }
 
   .tx-actions {
     display: flex;

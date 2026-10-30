@@ -6,20 +6,21 @@ from .models import Ulasan, FotoUlasan
 from barang.models import Barang
 from .forms import UlasanForm, FotoUlasanForm
 
-@login_required(login_url='/admin/login/')
-def daftar_ulasan(request, barang_id):
-    barang = get_object_or_404(Barang, id=barang_id)
+@login_required(login_url='/admin/login/') #biar kalo blm login diarahin ke page login
+def daftar_ulasan(request, barang_id): #daftar ulasan suatu barang
+    barang = get_object_or_404(Barang, id=barang_id) #ambil barang dari id nya
     
     if request.method == 'POST':
-        ulasan_form = UlasanForm(request.POST)
-        
-        if ulasan_form.is_valid():
-            ulasan_baru = ulasan_form.save(commit=False)
-            ulasan_baru.barang = barang
-            ulasan_baru.user = request.user
-            ulasan_baru.save()
+        ulasan_form = UlasanForm(request.POST) 
+                    
+        if ulasan_form.is_valid(): #kalo formnya valid
+            ulasan_baru = ulasan_form.save(commit=False) #disimpan di variabel tapi tidak masuk database dulu
+            ulasan_baru.barang = barang #barangnya tuh barang yang lagi di buka skrg
+            ulasan_baru.user = request.user #usernya yang ngirim request
+            
+            ulasan_baru.save() #baru deh simpen di database
 
-            files = request.FILES.getlist('gambar')
+            files = request.FILES.getlist('gambar') #isinya gambar yang banyak
             for f in files:
                 FotoUlasan.objects.create(ulasan=ulasan_baru, gambar=f)
 

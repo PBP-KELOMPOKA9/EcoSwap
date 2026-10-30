@@ -31,7 +31,7 @@
     </div>
     {% endif %}
 
-    <!-- tata letak 2 kolom  -->
+    <!-- tata letak 2 kolom -->
     <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 32px; align-items: start;">
       
       <!-- kolom kiri: kartu ringkasan identitas -->
@@ -196,12 +196,13 @@
 
         <div>
           <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Kata Sandi Baru</label>
-          <input type="password" name="new_password" required class="input" placeholder="Minimal 8 karakter">
+          <input type="password" name="new_password" required minlength="8" class="input" placeholder="Minimal 8 karakter unik (huruf & angka)">
+          <span style="font-size: 11px; color: var(--muted); margin-top: 4px; display: block;">Gunakan minimal 8 karakter dengan variasi kombinasi huruf dan angka.</span>
         </div>
 
         <div>
           <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Konfirmasi Kata Sandi Baru</label>
-          <input type="password" name="confirm_password" required class="input" placeholder="Ulangi password baru kamu">
+          <input type="password" name="confirm_password" required minlength="8" class="input" placeholder="Ulangi kata sandi baru kamu">
         </div>
       </div>
 
