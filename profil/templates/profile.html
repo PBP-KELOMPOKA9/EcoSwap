@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Profil Saya - EcoSwap{% endblock %}
+{% block title %}My Profile - EcoSwap{% endblock %}
 
 {% block content %}
 <style>
-  /* garis pembatas halus dan warna footer persis seperti halaman transaksi */
+  /* garis pembatas halus dan warna footer  */
   .profile-wrapper {
     border-bottom: 1px solid var(--line, #DCE2CF) !important;
   }
@@ -13,187 +13,382 @@
     background-color: var(--cream, #F5F6EC) !important;
     border-top: 1px solid var(--line, #DCE2CF) !important;
   }
+
+  /* kotak display field di halaman utama */
+  .field-box {
+    background: #FFFFFF;
+    border: 1px solid #DCE2CF;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #001F3F;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+
+  /* 3 tombol aksi  */
+  .btn-action-edit {
+    background: #001F3F;
+    color: #FFFFFF;
+    font-family: var(--font-head);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: 1px solid #001F3F;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    height: 42px;
+    transition: all 0.2s ease;
+  }
+  .btn-action-edit:hover {
+    background: #00804C;
+    border-color: #00804C;
+  }
+
+  .btn-action-password {
+    background: #FFFFFF;
+    color: #001F3F;
+    font-family: var(--font-head);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid #DCE2CF;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    height: 42px;
+    transition: all 0.2s ease;
+  }
+  .btn-action-password:hover {
+    border-color: #00804C;
+    color: #00804C;
+  }
+
+  .btn-action-signout {
+    background: #FCE9E7;
+    color: #C8392F;
+    font-family: var(--font-head);
+    font-size: 13.5px;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: 1px solid #F0B3AE;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    height: 42px;
+    transition: all 0.2s ease;
+  }
+  .btn-action-signout:hover {
+    background: #FADBD7;
+  }
+
+  /* pesan notifikasi  */
+  .alert-box-error {
+    padding: 13px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: #FCE9E7;
+    color: #C8392F;
+    border: 1px solid #F0B3AE;
+  }
+  .alert-box-success {
+    padding: 13px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    background: #E2F1E5;
+    color: #006B3F;
+    border: 1px solid #BFDCC8;
+  }
+
+  /* styling modal pop up */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: rgba(0, 31, 63, 0.45);
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.is-open {
+    display: flex !important;
+  }
+
+  .modal-card-custom {
+    background: #FFFFFF;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 490px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 30px 34px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    border: 1px solid #DCE2CF;
+  }
+
+  .modal-input {
+    width: 100%;
+    border: 1.5px solid #CBD3BC;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #001F3F;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    background: #FFFFFF;
+  }
+  .modal-input:focus {
+    border-color: #00804C;
+  }
 </style>
 
-<main class="page profile-wrapper" style="background: var(--cream, #F5F6EC); min-height: 80vh; padding: 48px 0 80px; border-bottom: 1px solid var(--line, #DCE2CF);">
-  <div class="container">
+<main class="page profile-wrapper" style="background: var(--cream, #F5F6EC); min-height: 85vh; padding: 56px 0 84px; border-bottom: 1px solid var(--line, #DCE2CF);">
+  <div class="container" style="max-width: 980px; margin: 0 auto; padding: 0 20px;">
     
-    <!-- judul halaman dan deskripsi universal -->
-    <div style="margin-bottom: 32px;">
-      <span class="eyebrow">AKUN PENGGUNA &bull; ECOSWAP</span>
-      <h1 class="page-title" style="margin-top: 6px;">Profil Pengguna</h1>
-      <p class="page-sub">Kelola identitas akun, nomor WhatsApp untuk kemudahan transaksi bertukar barang, dan alamat domisili.</p>
+    <!-- header atas: judul my profile reguler  -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px;">
+      <div>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: 1.2px; color: #00804C; text-transform: uppercase; display: block; margin-bottom: 8px;">
+          AKUN PENGGUNA &bull; ECOSWAP
+        </span>
+        <h1 style="font-family: var(--font-head); font-size: 38px; font-weight: 400; color: #001F3F; margin: 0; letter-spacing: -0.5px; line-height: 1.15;">
+          My Profile
+        </h1>
+        <p style="font-size: 14px; color: #5F6B7A; margin-top: 8px; margin-bottom: 0;">
+          Kelola informasi akun, kontak WhatsApp untuk transaksi, dan alamat domisili kosmu.
+        </p>
+      </div>
+
+      <!-- 3 tombol -->
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+        <!-- tombol edit -->
+        <button type="button" onclick="toggleEditModal(true)" class="btn-action-edit">
+          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          <span>Edit</span>
+        </button>
+
+        <!-- tombol ganti password satu baris lurus -->
+        <button type="button" onclick="togglePasswordModal(true)" class="btn-action-password">
+          Ganti Password
+        </button>
+
+        <!-- tombol sign out pastel pink -->
+        <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-action-signout">
+            Sign Out
+          </button>
+        </form>
+      </div>
     </div>
 
-    <!-- notifikasi jika berhasil update atau terjadi kesalahan -->
+    <!-- notifikasi pesan jika ada update data -->
     {% if messages %}
-    <div style="margin-bottom: 24px;">
+    <div style="margin-bottom: 20px;">
       {% for message in messages %}
         {% if message.tags == 'error' %}
-        <div style="padding: 14px 18px; border-radius: var(--radius); background: var(--red-soft); color: var(--red-dark); border: 1px solid #F0B3AE; font-size: 14px; font-weight: 600;">
-          {{ message }}
-        </div>
+          <div class="alert-box-error">{{ message }}</div>
         {% else %}
-        <div style="padding: 14px 18px; border-radius: var(--radius); background: var(--mint); color: var(--green-dark); border: 1px solid var(--mint-line); font-size: 14px; font-weight: 600;">
-          {{ message }}
-        </div>
+          <div class="alert-box-success">{{ message }}</div>
         {% endif %}
       {% endfor %}
     </div>
     {% endif %}
 
-    <!-- tata letak 2 kolom -->
-    <div style="display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 32px; align-items: start;">
-      
-      <!-- kolom kiri: kartu ringkasan identitas -->
-      <div style="background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px 24px; text-align: center; box-shadow: var(--shadow-card);">
-        
-        <!-- avatar foto profil atau inisial -->
-        <div style="width: 96px; height: 96px; border-radius: 999px; margin: 0 auto 18px; background: var(--green); color: var(--white); display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 36px; font-weight: 800; overflow: hidden; border: 3px solid var(--mint-line);">
+    <!-- kartu horizontal atas: avatar, nama lengkap, dan lokasi -->
+    <div style="background: #FFFFFF; border: 1px solid #DCE2CF; border-radius: 16px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <!-- avatar foto bulat -->
+        <div style="width: 58px; height: 58px; border-radius: 50%; overflow: hidden; background: #00804C; color: white; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-size: 24px; font-weight: 800; border: 2px solid #E2F1E5; flex-shrink: 0;">
           {% if profile.foto_profil %}
             <img src="{{ profile.foto_profil.url }}" alt="{{ request.user.username }}" style="width: 100%; height: 100%; object-fit: cover;">
           {% else %}
             {{ request.user.username|make_list|first|upper }}
           {% endif %}
         </div>
-
-        <h2 style="font-family: var(--font-head); font-weight: 700; font-size: 20px; color: var(--navy);">
-          {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
-        </h2>
-        <p style="font-size: 13px; color: var(--muted); margin-top: 2px;">@{{ request.user.username }}</p>
-
-        <div style="margin: 16px 0;">
-          <span class="badge badge--tersedia">Pengguna Aktif</span>
-        </div>
-
-        <p style="font-size: 12.5px; color: var(--muted); line-height: 1.6; margin-bottom: 24px;">
-          {% if profile.bio %}{{ profile.bio }}{% else %}<span style="font-style: italic;">Belum ada bio singkat. Peduli lingkungan dan gemar bertukar barang layak pakai.</span>{% endif %}
-        </p>
-
-        <!-- tombol edit profil -->
-        <button type="button" onclick="toggleEditModal(true)" class="btn btn--primary btn--block">
-          Edit Profil
-        </button>
-
-        <!-- tombol ganti password -->
-        <button type="button" onclick="togglePasswordModal(true)" class="btn btn--outline btn--block" style="margin-top: 10px;">
-          Ganti Password
-        </button>
-
-        <!-- form logout akun -->
-        <form method="post" action="{% url 'logout' %}" style="margin-top: 10px;">
-          {% csrf_token %}
-          <button type="submit" class="btn btn--danger-outline btn--block">
-            Sign Out
-          </button>
-        </form>
-      </div>
-
-      <!-- kolom kanan: rincian data pengguna -->
-      <div style="background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-card);">
-        <h3 style="font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--line);">
-          Informasi Akun &amp; Kontak
-        </h3>
-
-        <div style="display: flex; flex-direction: column; gap: 20px;">
-          
-          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
-            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Nama Lengkap</span>
-            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">{{ request.user.first_name|default:"-" }}</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
-            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Email Akun</span>
-            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">{{ request.user.email|default:"-" }}</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
-            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Nomor WhatsApp / HP</span>
-            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">
-              {% if profile.nomor_telepon %}{{ profile.nomor_telepon }}{% else %}<span style="color: var(--muted-soft); font-style: italic;">Belum diisi (diperlukan untuk transaksi)</span>{% endif %}
-            </span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 180px 1fr; gap: 16px; align-items: center;">
-            <span style="font-size: 13px; font-weight: 700; color: var(--muted);">Alamat / Domisili</span>
-            <span style="font-size: 14px; font-weight: 600; color: var(--navy);">
-              {% if profile.domisili %}{{ profile.domisili }}{% else %}<span style="color: var(--muted-soft); font-style: italic;">Belum diisi</span>{% endif %}
-            </span>
-          </div>
-
-        </div>
-
-        <div style="margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 12px; color: var(--muted);">Ingin memperbarui data atau kontakmu?</span>
-          <button type="button" onclick="toggleEditModal(true)" class="btn btn--outline btn--sm">
-            Ubah Informasi
-          </button>
+        
+        <div>
+          <h2 style="font-family: var(--font-head); font-size: 19px; font-weight: 800; color: #001F3F; margin: 0;">
+            {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}
+          </h2>
+          <p style="font-size: 13.5px; color: #5F6B7A; margin-top: 3px;">
+            {% if profile.domisili %}{{ profile.domisili }}{% else %}Depok, Indonesia{% endif %}
+          </p>
         </div>
       </div>
 
+      <span style="background: #E2F1E5; color: #00804C; font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 20px;">
+        Pengguna Aktif
+      </span>
+    </div>
+
+    <!-- kartu utama 2 kolom: personal information & address -->
+    <div style="background: #FFFFFF; border: 1px solid #DCE2CF; border-radius: 16px; padding: 36px 32px; box-shadow: 0 4px 16px rgba(0,0,0,0.02);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px;">
+        
+        <!-- kolom 1: personal information -->
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 16px; font-weight: 800; color: #001F3F; margin-bottom: 24px;">Personal Information</h3>
+
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Nama Lengkap:</label>
+              <div class="field-box">
+                {{ request.user.first_name|default:"-" }}
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Username:</label>
+              <div class="field-box">
+                @{{ request.user.username }}
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Email Address:</label>
+              <div class="field-box">
+                {{ request.user.email|default:"-" }}
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Phone Number (WhatsApp):</label>
+              <div class="field-box">
+                {% if profile.nomor_telepon %}{{ profile.nomor_telepon }}{% else %}<span style="color: #8A94A1; font-style: italic;">Belum diisi (diperlukan untuk transaksi)</span>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- kolom 2: address & domisili kos -->
+        <div>
+          <h3 style="font-family: var(--font-head); font-size: 16px; font-weight: 800; color: #001F3F; margin-bottom: 24px;">Address</h3>
+
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Country:</label>
+              <div class="field-box">
+                Indonesia
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Alamat / Domisili:</label>
+              <div class="field-box">
+                {% if profile.domisili %}{{ profile.domisili }}{% else %}<span style="color: #8A94A1; font-style: italic;">Belum diisi (misal: Depok, Jakarta Selatan, dll)</span>{% endif %}
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 12.5px; font-weight: 600; color: #5F6B7A; margin-bottom: 7px;">Bio Singkat:</label>
+              <div class="field-box" style="min-height: 48px; line-height: 1.4;">
+                {% if profile.bio %}{{ profile.bio }}{% else %}<span style="color: #8A94A1; font-style: italic;">Peduli lingkungan dan gemar bertukar barang layak pakai.</span>{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
 
   </div>
 </main>
 
-<!-- modal edit profil -->
-<div id="editModal" class="modal">
-  <div class="modal__card" style="max-width: 520px; text-align: left;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px;">
-      <h3 style="font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--navy);">Edit Profil Pengguna</h3>
-      <button type="button" onclick="toggleEditModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted);">&times;</button>
+<!-- modal pop-up edit profil pengguna -->
+<div id="editModal" class="modal-overlay">
+  <div class="modal-card-custom">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="font-family: var(--font-head); font-weight: 800; font-size: 19px; color: #001F3F; margin: 0;">Edit Profil Pengguna</h3>
+      <button type="button" onclick="toggleEditModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: #8A94A1; font-weight: bold;">&times;</button>
     </div>
 
+    <!-- form edit profil: semua bisa diedit kecuali username -->
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       
       <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- 1. nama lengkap -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Nama Lengkap</label>
-          <input type="text" name="first_name" value="{{ request.user.first_name }}" class="input" placeholder="Nama lengkap kamu">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Nama Lengkap</label>
+          <input type="text" name="first_name" value="{{ request.user.first_name }}" class="modal-input" placeholder="Nama lengkap kamu">
         </div>
 
+        <!-- 2. email -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Email</label>
-          <input type="email" name="email" value="{{ request.user.email }}" class="input" placeholder="email@contoh.com">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Email</label>
+          <input type="email" name="email" value="{{ request.user.email }}" class="modal-input" placeholder="email@contoh.com">
         </div>
 
+        <!-- 3. nomor whatsapp -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Nomor WhatsApp / HP</label>
-          <input type="tel" name="nomor_telepon" value="{{ profile.nomor_telepon|default:'' }}" class="input" placeholder="08xxxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
-          <span style="font-size: 11px; color: var(--muted); margin-top: 4px; display: block;">Format nomor Indonesia (diawali 08 atau 62, 10-14 digit angka).</span>
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Nomor WhatsApp / HP</label>
+          <input type="tel" name="nomor_telepon" value="{{ profile.nomor_telepon|default:'' }}" class="modal-input" placeholder="08xxxxxxxxxx" oninput="this.value = this.value.replace(/[^0-9+]/g, '')">
+          <span style="font-size: 11px; color: #8A94A1; margin-top: 4px; display: block;">Format nomor Indonesia (diawali 08 atau 62, 10-14 digit angka).</span>
         </div>
 
+        <!-- 4. alamat / domisili -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Alamat / Domisili</label>
-          <input type="text" name="domisili" value="{{ profile.domisili|default:'' }}" class="input" placeholder="Contoh: Depok, Jakarta Selatan, dll">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Alamat / Domisili</label>
+          <input type="text" name="domisili" value="{{ profile.domisili|default:'' }}" class="modal-input" placeholder="Contoh: Depok, Jakarta Selatan, dll">
         </div>
 
+        <!-- 5. bio singkat -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Bio Singkat</label>
-          <textarea name="bio" class="input" style="min-height: 80px; padding: 10px;" placeholder="Ceritakan sedikit tentang dirimu...">{{ profile.bio|default:'' }}</textarea>
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Bio Singkat</label>
+          <textarea name="bio" class="modal-input" style="min-height: 80px;" placeholder="Ceritakan sedikit tentang dirimu...">{{ profile.bio|default:'' }}</textarea>
         </div>
 
+        <!-- 6. foto profil -->
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Foto Profil</label>
-          <input type="file" name="foto_profil" accept="image/*" class="input" style="padding-top: 8px;">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Foto Profil</label>
+          <div style="border: 1.5px solid #CBD3BC; border-radius: 12px; padding: 8px 12px; background: white;">
+            <input type="file" name="foto_profil" accept="image/*" style="font-size: 13px; color: #5F6B7A; width: 100%;">
+          </div>
         </div>
       </div>
 
-      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" onclick="toggleEditModal(false)" class="btn btn--outline">Batal</button>
-        <button type="submit" class="btn btn--primary">Simpan Perubahan</button>
+      <!-- tombol aksi modal -->
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" onclick="toggleEditModal(false)" style="background: white; border: 1.5px solid #CBD3BC; color: #001F3F; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 999px; cursor: pointer;">
+          Batal
+        </button>
+        <button type="submit" style="background: #00804C; color: white; border: none; font-size: 13px; font-weight: 700; padding: 10px 26px; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,128,76,0.25);">
+          Simpan Perubahan
+        </button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- modal ganti password -->
-<div id="passwordModal" class="modal">
-  <div class="modal__card" style="max-width: 480px; text-align: left;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 14px;">
-      <h3 style="font-family: var(--font-head); font-weight: 700; font-size: 18px; color: var(--navy);">Ganti Kata Sandi</h3>
-      <button type="button" onclick="togglePasswordModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted);">&times;</button>
+<div id="passwordModal" class="modal-overlay">
+  <div class="modal-card-custom" style="max-width: 460px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h3 style="font-family: var(--font-head); font-weight: 800; font-size: 19px; color: #001F3F; margin: 0;">Ganti Kata Sandi</h3>
+      <button type="button" onclick="togglePasswordModal(false)" style="border: none; background: transparent; font-size: 20px; cursor: pointer; color: #8A94A1; font-weight: bold;">&times;</button>
     </div>
 
     <form method="post" action="{% url 'change_password' %}">
@@ -201,32 +396,36 @@
       
       <div style="display: flex; flex-direction: column; gap: 16px;">
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Kata Sandi Lama</label>
-          <input type="password" name="old_password" required class="input" placeholder="Masukkan password lama kamu">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Kata Sandi Lama</label>
+          <input type="password" name="old_password" required class="modal-input" placeholder="Masukkan password lama kamu">
         </div>
 
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Kata Sandi Baru</label>
-          <input type="password" name="new_password" required minlength="8" class="input" placeholder="Minimal 8 karakter unik (huruf & angka)">
-          <span style="font-size: 11px; color: var(--muted); margin-top: 4px; display: block;">Gunakan minimal 8 karakter dengan variasi kombinasi huruf dan angka.</span>
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Kata Sandi Baru</label>
+          <input type="password" name="new_password" required minlength="8" class="modal-input" placeholder="Minimal 8 karakter unik">
+          <span style="font-size: 11px; color: #8A94A1; margin-top: 4px; display: block;">Gunakan minimal 8 karakter variasi huruf dan angka.</span>
         </div>
 
         <div>
-          <label style="display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 6px;">Konfirmasi Kata Sandi Baru</label>
-          <input type="password" name="confirm_password" required minlength="8" class="input" placeholder="Ulangi kata sandi baru kamu">
+          <label style="display: block; font-size: 12.5px; font-weight: 700; color: #001F3F; margin-bottom: 6px;">Konfirmasi Kata Sandi Baru</label>
+          <input type="password" name="confirm_password" required minlength="8" class="modal-input" placeholder="Ulangi kata sandi baru kamu">
         </div>
       </div>
 
-      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 10px;">
-        <button type="button" onclick="togglePasswordModal(false)" class="btn btn--outline">Batal</button>
-        <button type="submit" class="btn btn--primary">Perbarui Password</button>
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" onclick="togglePasswordModal(false)" style="background: white; border: 1.5px solid #CBD3BC; color: #001F3F; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 999px; cursor: pointer;">
+          Batal
+        </button>
+        <button type="submit" style="background: #00804C; color: white; border: none; font-size: 13px; font-weight: 700; padding: 10px 26px; border-radius: 999px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,128,76,0.25);">
+          Perbarui Password
+        </button>
       </div>
     </form>
   </div>
 </div>
 
 <script>
-  // fungsi untuk buka tutup modal edit profil
+  // fungsi buka tutup modal edit profil
   function toggleEditModal(show) {
     const modal = document.getElementById('editModal');
     if (show) {
@@ -236,7 +435,7 @@
     }
   }
 
-  // fungsi untuk buka tutup modal ganti password
+  // fungsi buka tutup modal ganti password
   function togglePasswordModal(show) {
     const modal = document.getElementById('passwordModal');
     if (show) {
