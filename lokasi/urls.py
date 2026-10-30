@@ -4,5 +4,5 @@ from . import views
 app_name = 'lokasi'
 
 urlpatterns = [
-    path('peta/', views.peta_semua_barang, name='peta'),
+    path('json/', views.daftar_lokasi_json, name='daftar_lokasi_json'),
 ]

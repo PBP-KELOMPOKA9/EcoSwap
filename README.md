@@ -1,4 +1,4 @@
-pypp# EcoSwap
+# EcoSwap
 
 ## Deskripsi Aplikasi
 
@@ -32,8 +32,25 @@ CRUD untuk chat antara dua pengguna terkait suatu barang/transaksi: mengirim, me
 
 ## Public API
 
-**Google Maps Platform** (Maps JavaScript API untuk menampilkan peta, dan Geocoding API untuk mengubah alamat menjadi koordinat).
-Dokumentasi: https://developers.google.com/maps/documentation
+- OpenStreetMap Nominatim API untuk fitur:
+Geocoding: Mengubah input pencarian nama tempat/alamat menjadi titik koordinat dan mengarahkan peta.
+- Reverse Geocoding: Mengubah titik koordinat (saat pengguna mengklik atau menggeser pin di peta) menjadi nama alamat/jalan secara otomatis.
+
+Tampilan peta interaktif dirender menggunakan library Leaflet.js dengan tile peta berbasis OpenStreetMap.
+
+Dokumentasi:
+Nominatim API: https://nominatim.org/release-docs/latest/api/Overview/
+Leaflet.js: https://leafletjs.com/reference.html
+
+### Catatan Perubahan
+
+Pada rencana awal, kami menggunakan **Google Maps Platform** (Maps JavaScript API dan Geocoding API). Namun, kami beralih ke **Leaflet.js dengan OpenStreetMap** dengan alasan berikut:
+
+- Gratis dan tidak memerlukan API key maupun akun billing.
+- Lebih sederhana untuk diintegrasikan dan dijalankan oleh seluruh anggota tim.
+- Kebutuhan fitur peta pada EcoSwap (menampilkan dan mencari lokasi barang) sudah terpenuhi.
+
+Peta ditampilkan dengan Leaflet.js, sedangkan data peta dan geocoding berasal dari layanan OpenStreetMap.
 
 ## Peran Pengguna
 
