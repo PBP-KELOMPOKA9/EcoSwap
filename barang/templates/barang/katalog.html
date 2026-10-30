@@ -131,7 +131,11 @@
 
       {% else %}
       <div class="empty">
+        {% if ada_filter %}
+        <img src="{% static 'img/not-found.png' %}" alt="Barang tidak ditemukan" class="empty__art" style="max-width: 140px; height: auto; object-fit: contain;">
+        {% else %}
         {% include "barang/partials/empty_heart.svg.html" %}
+        {% endif %}
         <div>
           {% if ada_filter %}
           <h2 class="empty__title">Barang tidak ditemukan</h2>
