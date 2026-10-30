@@ -39,3 +39,8 @@ Dokumentasi: https://developers.google.com/maps/documentation
 
 - **Pemberi/penjual barang**: memposting barang untuk didonasikan atau dijual murah, mengatur opsi pengambilan, menerima atau menolak pengajuan minat
 - **Pencari barang**: menelusuri barang yang tersedia, menyimpan barang ke wishlist, mengajukan minat, mengatur pertemuan atau pengiriman, memberi ulasan setelah transaksi
+
+
+Tautan deployment PWS: https://cheryl-mahira-ecoswap.pws.cs.ui.ac.id/
+
+Tautan desain Figma (wajib): https://www.figma.com/design/InO9fkN6OAPY8TbBGRyeWs/HTML?node-id=196-367&t=0FM2EbXJlOhqdGl1-1
